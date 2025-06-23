@@ -1,2 +1,4 @@
-# 64-bit-RISC-V-CPU
-An advanced 64-bit RISC-V CPU.
+# RISC-V-64-bit-CPU
+This reposistory contains the current state of the journey towards creating a 2-core RV64IMF CPU with private and seperate instruction + data L1 caches with a shared inclusive L2 cache, utilizing the MOESI protocol for cache coherence.<br><br>
+The current design consists of a standard single core RV64I CPU with a standard 5 stage pipeline and a 2-bit saturating counter branch predictor. The multiply + floating point extensions will be added on later in addition to out-of-order execution and a modified pipeline to maximize performance. After that, a second core will be added along with cache coherency protocols.<br><br>
+Some future ideas being considered to be implemented after implementing the aforementioned ideas include hyperthreading, implementing some processor features to aid running an OS (such as CSR instructions + hint instructions), other RISC-V extensions, or further architectural revisions.
