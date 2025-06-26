@@ -16,6 +16,11 @@ package types_pkg;
     parameter FUNCT3_W  = 3;
     parameter REG_W     = 5;
 
+    //Control Signal Sizes
+    parameter ALUOP_W   = 4;
+    parameter MEMDATA_W = 3;
+    parameter IMMTYPE_W = 3;
+
     //Cache sizes
     parameter CACHE_ADDR_W = ADDR_W
 
@@ -41,6 +46,7 @@ package types_pkg;
     typedef logic [WORD_W-1:0] word_t;
     typedef logic [DWORD_W-1:0] dword_t;
     typedef logic [REG_W-1:0] reg_t;
+    typedef logic [ADDR_W-1:0] addr_t;
 
 
     //Opcode Types
@@ -123,9 +129,9 @@ package types_pkg;
         SUB     = 7'b0100000 
     } funct7_r_t;
 
-    typedef enum logic [FUNCT7_W-1:0] {
-        SRL     = 7'b0000000,
-        SRA     = 7'b0100000
+    typedef enum logic [5:0] { //Set to [5:0] to accomodate for 64 bit shifts
+        SRL     = 6'b000000,
+        SRA     = 6'b010000
     } funct7_sr_t; //ITYPE OR RTYPE
 
 
@@ -133,7 +139,7 @@ package types_pkg;
     typedef enum logic [11:0] {
         ECALL   = 12'b000000000000,
         EBREAK  = 12'b000000000001
-    }  imm12_env_t;
+    }  funct12_env_t;
 
 
     //INSTR
@@ -199,3 +205,45 @@ package types_pkg;
         logic [L2_TAG_W-1:0] tag;
         dword_t [3:0] data;
     } l2cache_frame;
+
+
+    //ALUOp Bits
+    typedef enum logic [ALUOP_W-1:0] {
+        ALU_ADD     = 4'b0000
+        ALU_SUB     = 4'b0001
+        ALU_AND     = 4'b0010
+        ALU_OR      = 4'b0011
+        ALU_SLL     = 4'b0100
+        ALU_SLT     = 4'b0101
+        ALU_SLTU    = 4'b0110
+        ALU_SRA     = 4'b0111
+        ALU_SRL     = 4'b1000
+        ALU_XOR     = 4'b1001
+        ALU_ADDW    = 4'b1010
+        ALU_SUBW    = 4'b1011
+        ALU_SLLW    = 4'b1100
+        ALU_SRLW    = 4'b1101
+        ALU_SRAW    = 4'b1110
+    } aluop_t;
+
+    //MEMOp Bits
+    typedef enum logic [MEMDATA_W-1:0] {
+        MEM_BYTE    = 3'b000
+        MEM_BYTE_U  = 3'b001
+        MEM_HWORD   = 3'b010
+        MEM_HWORD_U = 3'b011
+        MEM_WORD    = 3'b100
+        MEM_WORD_U  = 3'b101
+        MEM_DWORD   = 3'b110
+    } memdata_t;
+
+    //ImmType Bits
+    typdef enum logic [IMMTYPE_W-1:0] {
+        IMM_ITYPE   = 3'b000
+        IMM_UTYPE   = 3'b001
+        IMM_STYPE   = 3'b010
+        IMM_SBTYPE  = 3'b011
+        IMM_UJTYPE  = 3'b100
+        IMM_SHIFT   = 3'b101
+        IMM_SHIFTW  = 3'b110
+    } immtype_t;
