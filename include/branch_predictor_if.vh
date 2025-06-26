@@ -19,7 +19,7 @@ interface branch_predictor_if;
     modport tb (
         input target, pred_taken,
         output pc, next_pc, old_pc, jump_taken, branch
-    )
+    );
 
 endinterface
 

@@ -32,7 +32,7 @@ interface control_unit_if;
     modport tb (
         input ALUOp, MemData, ImmType, lui, immSel, auipc, jalr, jump, branch, MemtoReg, MemRead, MemWrite, halt, RegWrite,
         output funct3_load, funct3_fence, funct3_i, funct3_s, funct3_r, funct3_sb, funct7_r, funct7_sr, funct12_env, opcode
-    )
+    );
 
 endinterface
 

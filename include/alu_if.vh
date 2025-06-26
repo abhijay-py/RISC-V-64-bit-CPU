@@ -20,7 +20,7 @@ interface alu_if;
     modport tb (
         input aluout, zero,
         output porta, portb, ALUOp
-    )
+    );
 
 endinterface
 
