@@ -24,4 +24,5 @@ interface registers_if;
 
 endinterface
 
-`endif 
+`endif
+

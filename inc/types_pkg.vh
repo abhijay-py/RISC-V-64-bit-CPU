@@ -22,7 +22,7 @@ package types_pkg;
     parameter IMMTYPE_W = 3;
 
     //Cache sizes
-    parameter CACHE_ADDR_W = ADDR_W
+    parameter CACHE_ADDR_W = ADDR_W;
 
     parameter L1D_IDX_W = 6;
     parameter L1D_BLK_OFFSET_W = 2;
@@ -80,8 +80,8 @@ package types_pkg;
     } funct3_load_t;
 
     typedef enum logic [FUNCT3_W-1:0] {
-        FENCE   = 3'b000,
-        FENCE_I = 3'b001
+        FENCE_3   = 3'b000,
+        FENCE_I_3 = 3'b001
     } funct3_fence_t;
 
     typedef enum logic [FUNCT3_W-1:0] {
@@ -99,7 +99,7 @@ package types_pkg;
         SB      = 3'b000,
         SH      = 3'b001,
         SW      = 3'b010,
-        SD      = 3'b011,
+        SD      = 3'b011
     } funct3_s_t;
 
     typedef enum logic [FUNCT3_W-1:0] {
@@ -209,41 +209,41 @@ package types_pkg;
 
     //ALUOp Bits
     typedef enum logic [ALUOP_W-1:0] {
-        ALU_ADD     = 4'b0000
-        ALU_SUB     = 4'b0001
-        ALU_AND     = 4'b0010
-        ALU_OR      = 4'b0011
-        ALU_SLL     = 4'b0100
-        ALU_SLT     = 4'b0101
-        ALU_SLTU    = 4'b0110
-        ALU_SRA     = 4'b0111
-        ALU_SRL     = 4'b1000
-        ALU_XOR     = 4'b1001
-        ALU_ADDW    = 4'b1010
-        ALU_SUBW    = 4'b1011
-        ALU_SLLW    = 4'b1100
-        ALU_SRLW    = 4'b1101
+        ALU_ADD     = 4'b0000,
+        ALU_SUB     = 4'b0001,
+        ALU_AND     = 4'b0010,
+        ALU_OR      = 4'b0011,
+        ALU_SLL     = 4'b0100,
+        ALU_SLT     = 4'b0101,
+        ALU_SLTU    = 4'b0110,
+        ALU_SRA     = 4'b0111,
+        ALU_SRL     = 4'b1000,
+        ALU_XOR     = 4'b1001,
+        ALU_ADDW    = 4'b1010,
+        ALU_SUBW    = 4'b1011,
+        ALU_SLLW    = 4'b1100,
+        ALU_SRLW    = 4'b1101,
         ALU_SRAW    = 4'b1110
     } aluop_t;
 
     //MEMOp Bits
     typedef enum logic [MEMDATA_W-1:0] {
-        MEM_BYTE    = 3'b000
-        MEM_BYTE_U  = 3'b001
-        MEM_HWORD   = 3'b010
-        MEM_HWORD_U = 3'b011
-        MEM_WORD    = 3'b100
-        MEM_WORD_U  = 3'b101
+        MEM_BYTE    = 3'b000,
+        MEM_BYTE_U  = 3'b001,
+        MEM_HWORD   = 3'b010,
+        MEM_HWORD_U = 3'b011,
+        MEM_WORD    = 3'b100,
+        MEM_WORD_U  = 3'b101,
         MEM_DWORD   = 3'b110
     } memdata_t;
 
     //ImmType Bits
-    typdef enum logic [IMMTYPE_W-1:0] {
-        IMM_ITYPE   = 3'b000
-        IMM_UTYPE   = 3'b001
-        IMM_STYPE   = 3'b010
-        IMM_SBTYPE  = 3'b011
-        IMM_UJTYPE  = 3'b100
-        IMM_SHIFT   = 3'b101
+    typedef enum logic [IMMTYPE_W-1:0] {
+        IMM_ITYPE   = 3'b000,
+        IMM_UTYPE   = 3'b001,
+        IMM_STYPE   = 3'b010,
+        IMM_SBTYPE  = 3'b011,
+        IMM_UJTYPE  = 3'b100,
+        IMM_SHIFT   = 3'b101,
         IMM_SHIFTW  = 3'b110
     } immtype_t;
