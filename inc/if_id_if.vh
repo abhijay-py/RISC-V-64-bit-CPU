@@ -6,20 +6,21 @@
 interface if_id_if;
     import types_pkg::*;
 
-    word_t instr_if, instr_id
-    logic pred_taken_if, pred_taken_id, flush, freeze, ihit; 
-    addr_t pc_if, pc_id;
+    // Changed format for instr fetch to avoid confusion with interfaces
+    word_t if_instr, instr_id
+    logic if_pred_taken, pred_taken_id, flush, freeze, ihit; 
+    addr_t if_pc, pc_id;
 
     //IF_ID Latch ports
     modport fd (
-        input instr_if, pred_taken_if, flush, freeze, ihit, pc_if, 
+        input if_instr, if_pred_taken, flush, freeze, ihit, if_pc, 
         output instr_id, pred_taken_id, pc_id
     );
 
     //Testbench ports
     modport tb (
         input instr_id, pred_taken_id, pc_id,
-        output instr_if, pred_taken_if, flush, freeze, ihit, pc_if
+        output if_instr, if_pred_taken, flush, freeze, ihit, if_pc
     );
 
 endinterface

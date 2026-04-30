@@ -58,7 +58,7 @@ package types_pkg;
         S_TYPE   = 7'b0010011,
         R_TYPE  = 7'b0110011,
         LUI     = 7'b0110111,
-        SB_TYPE = 7'b1100011,
+        B_TYPE = 7'b1100011,
         JALR    = 7'b1100111,
         JAL     = 7'b1101111,
         ENV_CSR = 7'b1110011,
@@ -70,37 +70,37 @@ package types_pkg;
 
     //FUNCT3
     typedef enum logic [FUNCT3_W-1:0] {
-        LB      = 3'b000,
-        LH      = 3'b001,
-        LW      = 3'b010,
-        LD      = 3'b011,
-        LBU     = 3'b100,
-        LHU     = 3'b101,
-        LWU     = 3'b110
-    } funct3_load_t;
+        B      = 3'b000,
+        H      = 3'b001,
+        W      = 3'b010,
+        D      = 3'b011,
+        BU     = 3'b100,
+        HU     = 3'b101,
+        WU     = 3'b110
+    } funct3_mem_t;
 
     typedef enum logic [FUNCT3_W-1:0] {
         FENCE_3   = 3'b000,
         FENCE_I_3 = 3'b001
     } funct3_fence_t;
 
-    typedef enum logic [FUNCT3_W-1:0] {
-        ADDI    = 3'b000,
-        SLLI    = 3'b001,
-        SLTI    = 3'b010,
-        SLTIU   = 3'b011,
-        XORI    = 3'b100,
-        SRAI_SRLI = 3'b101,
-        ORI     = 3'b110,
-        ANDI    = 3'b111
-    } funct3_i_t;
+    // typedef enum logic [FUNCT3_W-1:0] {
+    //     ADDI    = 3'b000,
+    //     SLLI    = 3'b001,
+    //     SLTI    = 3'b010,
+    //     SLTIU   = 3'b011,
+    //     XORI    = 3'b100,
+    //     SRAI_SRLI = 3'b101,
+    //     ORI     = 3'b110,
+    //     ANDI    = 3'b111
+    // } funct3_i_t;
 
-    typedef enum logic [FUNCT3_W-1:0] {
-        SB      = 3'b000,
-        SH      = 3'b001,
-        SW      = 3'b010,
-        SD      = 3'b011
-    } funct3_s_t;
+    // typedef enum logic [FUNCT3_W-1:0] {
+    //     SB      = 3'b000,
+    //     SH      = 3'b001,
+    //     SW      = 3'b010,
+    //     SD      = 3'b011
+    // } funct3_s_t;
 
     typedef enum logic [FUNCT3_W-1:0] {
         ADD_SUB = 3'b000,
@@ -111,7 +111,7 @@ package types_pkg;
         SRA_SRL = 3'b101,
         OR      = 3'b110,
         AND     = 3'b111
-    } funct3_r_t;
+    } funct3_ri_t;
 
     typedef enum logic [FUNCT3_W-1:0] {
         BEQ     = 3'b000,
@@ -120,7 +120,7 @@ package types_pkg;
         BGE     = 3'b101,
         BLTU    = 3'b110,
         BGEU    = 3'b111
-    } funct3_sb_t;
+    } funct3_b_t;
 
 
     //FUNCT7
@@ -242,7 +242,7 @@ package types_pkg;
         IMM_ITYPE   = 3'b000,
         IMM_UTYPE   = 3'b001,
         IMM_STYPE   = 3'b010,
-        IMM_SBTYPE  = 3'b011,
+        IMM_BTYPE  = 3'b011,
         IMM_UJTYPE  = 3'b100,
         IMM_SHIFT   = 3'b101,
         IMM_SHIFTW  = 3'b110

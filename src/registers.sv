@@ -4,7 +4,7 @@ module registers (
   input logic CLK, nRST,
   registers_if.regs rif
 );
-    logic [63:0] register_data [31:0];
+    dword_t register_data [31:0];
     
     assign rif.rdata1 = register_data[rif.rs1];
     assign rif.rdata2 = register_data[rif.rs2];
