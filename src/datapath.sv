@@ -2,11 +2,13 @@
 
 `include "types_pkg.vh"
 
+import types_pkg::*;
+
 module datapath (
   input logic CLK, nRST,
   datapath_if.dp dpif
 );
-    import types_pkg.vh::*;
+
 
     parameter PC_INIT = 0;
 

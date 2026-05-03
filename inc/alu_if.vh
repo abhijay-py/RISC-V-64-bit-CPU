@@ -6,22 +6,23 @@
 interface alu_if;
     import types_pkg::*;
 
-    dword_t porta, portb, aluout;
-    logic zero;
+    dword_t port_a, port_b, alu_out;
     aluop_t ALUOp;
+    logic zero;
 
     //ALU ports
     modport alu (
-        input porta, portb, ALUOp,
-        output aluout, zero
+        input port_a, port_b, ALUOp,
+        output alu_out, zero
     );
 
     //Testbench ports
     modport tb (
-        input aluout, zero,
-        output porta, portb, ALUOp
+        input alu_out, zero,
+        output port_a, port_b, ALUOp,
     );
 
 endinterface
 
-`endif 
+`endif
+

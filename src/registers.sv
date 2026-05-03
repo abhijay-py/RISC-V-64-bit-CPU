@@ -1,4 +1,7 @@
 `include "registers_if.vh"
+`include "types_pkg.vh"
+
+import types_pkg::*;
 
 module registers (
   input logic CLK, nRST,

@@ -1,6 +1,8 @@
 `include "control_unit_if.vh"
 `include "types_pkg.vh"
 
+import types_pkg::*;
+
 module control_unit (
   control_unit.cu cuif
 );
