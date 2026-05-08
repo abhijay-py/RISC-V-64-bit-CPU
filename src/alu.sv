@@ -7,9 +7,9 @@ module alu (
   alu_if.alu aluif
 );
 
-    logic overflow; // Currently just an inmodule flag, creating for easy utilization later.
+    logic overflow; // Currently just an inmodule flag, creating for easy utilization later. (only works for add for now)
     logic alu_error; //error flag for default case;
-    logic [64:0] result;
+    logic [D_WORD_W:0] result;
 
     assign aluif.zero = aluif.alu_out == '0 ? 1 : 0;
 

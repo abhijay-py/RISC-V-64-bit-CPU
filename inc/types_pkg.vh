@@ -39,6 +39,15 @@ package types_pkg;
     parameter L2_BYTE_OFFSET_W = 3;
     parameter L2_TAG_W = CACHE_ADDR_W - L2_IDX_W - L2_BLK_OFFSET_W - L2_BYTE_OFFSET_W;
 
+    //Branch Prediction sizes
+    parameter GHR_W = 12;
+    parameter PHT_ENTRIES = 1 << GHR_W;
+    parameter PHT_W = 2;
+
+    parameter BTB_IDX_W = 9; //1024 entry 2-way BTB
+    parameter BTB_TAG_W = ADDR_W - BTB_IDX_W;
+    parameter BTB_FRAME_ENTRIES = 1 << BTB_IDX_W;
+
 
     //Size Types
     typedef logic [BYTE_W-1:0] byte_t;
@@ -206,6 +215,19 @@ package types_pkg;
         dword_t [3:0] data;
     } l2cache_frame;
 
+    //BTB FRAME + TYPE
+    typedef struct packet {
+        logic [BTB_TAG_W-1:0] tag;
+        logic [BTB_IDX_W-1:0] idx;
+    } btb_pc_t;
+
+    typedef struct packed {
+        logic valid;
+        logic jump;
+        logic [BTB_TAG_W-1:0] tag;
+        addr_t pc;
+    } btb_frame;
+
 
     //ALUOp Bits
     typedef enum logic [ALUOP_W-1:0] {
@@ -247,3 +269,11 @@ package types_pkg;
         IMM_SHIFT   = 3'b101,
         IMM_SHIFTW  = 3'b110
     } immtype_t;
+
+    //Predictor Types
+    typedef enum logic [PHT_W-1:0] {
+        BP_SNT = 2'b00,
+        BP_WNT = 2'b01,
+        BP_WT = 2'b10,
+        BP_ST = 2'b11
+    } branchpred_t;
