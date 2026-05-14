@@ -2,7 +2,7 @@
 `include "types_pkg.vh"
 
 import types_pkg::*;
-
+//TODO: rewrite only pass the functs and use casts.
 module control_unit (
   control_unit.cu cuif
 );
@@ -18,7 +18,7 @@ module control_unit (
         cuif.jalr = 0;
         cuif.jump = 0;
         cuif.branch = 0;
-        cuif.MemtoReg = 0;
+        cuif.MemToReg = 0;
         cuif.MemRead = 0;
         cuif.MemWrite = 0;
         cuif.halt = 0;
@@ -58,12 +58,12 @@ module control_unit (
                 endcase
             end
             LOAD, S_TYPE: begin
-                cuif.MemtoReg = 1;
+                cuif.MemToReg = 1;
                 cuif.MemRead = 1;
                 cuif.immSel = 1;
 
                 if (cuif.opcode == S_TYPE) begin
-                    cuif.MemtoReg = 0;
+                    cuif.MemToReg = 0;
                     cuif.MemRead = 0;
                     cuif.MemWrite = 1;
                     cuif.RegWrite = 0;

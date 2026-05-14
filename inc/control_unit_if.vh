@@ -5,6 +5,7 @@
 
 interface control_unit_if;
     import types_pkg::*;
+    //TODO: rewrite only pass the functs and use casts.
 
     funct3_fence_t funct3_fence;
     funct3_mem_t funct3_mem;
@@ -18,17 +19,17 @@ interface control_unit_if;
     aluop_t ALUOp;
     memdata_t MemData;
     immtype_t ImmType;
-    logic lui, immSel, auipc, jalr, jump, branch, MemtoReg, MemRead, MemWrite, halt, RegWrite
+    logic lui, immSel, auipc, jalr, jump, branch, MemToReg, MemRead, MemWrite, halt, RegWrite
     
     //Control Unit ports
     modport cu (
         input funct3_fence, funct3_ri, funct3_mem, funct3_b, funct7_r, funct7_sr, funct12_env, opcode,
-        output ALUOp, MemData, ImmType, lui, immSel, auipc, jalr, jump, branch, MemtoReg, MemRead, MemWrite, halt, RegWrite
+        output ALUOp, MemData, ImmType, lui, immSel, auipc, jalr, jump, branch, MemToReg, MemRead, MemWrite, halt, RegWrite
     );
 
     //Testbench ports
     modport tb (
-        input ALUOp, MemData, ImmType, lui, immSel, auipc, jalr, jump, branch, MemtoReg, MemRead, MemWrite, halt, RegWrite,
+        input ALUOp, MemData, ImmType, lui, immSel, auipc, jalr, jump, branch, MemToReg, MemRead, MemWrite, halt, RegWrite,
         output funct3_fence, funct3_ri, funct3_mem, funct3_b, funct7_r, funct7_sr, funct12_env, opcode
     );
 

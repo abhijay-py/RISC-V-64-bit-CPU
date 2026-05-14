@@ -110,13 +110,11 @@ module branch_predictor (
                 next_lru_write_entry = 1;
                 next_btbz_frame.pc = bpif.next_pc;
                 btbz_en = 1;
-                //next_btbz_frame.jump = bpif.old_jump;
             end
             else if (next_btbo_frame.valid && oldpc_for_btb.tag == next_btbo_frame.tag) begin
                 next_lru_write_entry = 0;
                 next_btbo_frame.pc = bpif.next_pc;
                 btbo_en = 1;
-                //next_btbo_frame.jump = bpif.old_jump;
             end
             else begin
                 next_lru_write_entry = ~lru[oldpc_for_btb.idx];
