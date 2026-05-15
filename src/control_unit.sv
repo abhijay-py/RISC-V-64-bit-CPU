@@ -2,11 +2,27 @@
 `include "types_pkg.vh"
 
 import types_pkg::*;
-//TODO: rewrite only pass the functs and use casts.
+//TODO: update diagram with funct12
 module control_unit (
-  control_unit.cu cuif
+  control_unit_if.cu cuif
 );
     logic decode_error; //Decode Error Flag (will decide what to do later)
+
+    funct3_fence_t funct3_fence;
+    funct3_mem_t funct3_mem;
+    funct3_ri_t funct3_ri;
+    funct3_b_t funct3_b;
+    funct7_r_t funct7_r;
+    funct7_sr_t funct7_sr; 
+    funct12_env_t funct12_env;
+
+    assign funct3_fence = funct3_fence_t'(cuif.funct3);
+    assign funct3_mem = funct3_mem_t'(cuif.funct3);
+    assign funct3_ri = funct3_ri_t'(cuif.funct3);
+    assign funct3_b = funct3_b_t'(cuif.funct3);
+    assign funct7_r = funct7_r_t'(cuif.funct7);
+    assign funct7_sr = funct7_sr_t'(cuif.funct7);
+    assign funct12_env = funct12_env_t'(cuif.funct12);
 
     always_comb begin
         cuif.ALUOp = ALU_ADD;
@@ -28,32 +44,32 @@ module control_unit (
         case (cuif.opcode) 
             R_TYPE, I_TYPE: begin
                 cuif.immSel = cuif.opcode == I_TYPE ? 1 : 0;
-                if (cuif.funct3_ri == SLL || cuif.funct3_ri == SRA_SRL) begin
+                if (funct3_ri == SLL || funct3_ri == SRA_SRL) begin
                     cuif.ImmType = IMM_SHIFT;
                 end
 
-                case (cuif.funct3_ri)
-                    ADD_SUB: cuif.ALUOp = (cuif.opcode != I_TYPE && cuif.funct7_r == SUB) ? ALU_SUB : ALU_ADD;
+                case (funct3_ri)
+                    ADD_SUB: cuif.ALUOp = (cuif.opcode != I_TYPE && funct7_r == SUB) ? ALU_SUB : ALU_ADD;
                     AND: cuif.ALUOp = ALU_AND;
                     OR: cuif.ALUOp = ALU_OR;
                     XOR: cuif.ALUOp = ALU_XOR;
                     SLL: cuif.ALUOp = ALU_SLL;
                     SLT: cuif.ALUOp = ALU_SLT;
                     SLTU: cuif.ALUOp = ALU_SLTU;
-                    SRA_SRL: cuif.ALUOp = cuif.funct7_sr == SRA ? ALU_SRA : ALU_SRL;
+                    SRA_SRL: cuif.ALUOp = funct7_sr == SRA ? ALU_SRA : ALU_SRL;
                     default: decode_error = 1;
                 endcase
             end
             RW_TYPE, IW_TYPE: begin
                 cuif.immSel = cuif.opcode == IW_TYPE ? 1 : 0;
-                if (cuif.funct3_ri == SLL || cuif.funct3_ri == SRA_SRL) begin
+                if (funct3_ri == SLL || funct3_ri == SRA_SRL) begin
                     cuif.ImmType = IMM_SHIFTW;
                 end
 
-                case (cuif.funct3_ri)
-                    ADD_SUB: cuif.ALUOp = (cuif.opcode != IW_TYPE && cuif.funct7_r == SUB) ? ALU_SUBW : ALU_ADDW;
+                case (funct3_ri)
+                    ADD_SUB: cuif.ALUOp = (cuif.opcode != IW_TYPE && funct7_r == SUB) ? ALU_SUBW : ALU_ADDW;
                     SLL: cuif.ALUOp = ALU_SLLW;
-                    SRA_SRL: cuif.ALUOp = cuif.funct7_sr == SRA ? ALU_SRAW : ALU_SRLW;
+                    SRA_SRL: cuif.ALUOp = funct7_sr == SRA ? ALU_SRAW : ALU_SRLW;
                     default: decode_error = 1;
                 endcase
             end
@@ -67,13 +83,12 @@ module control_unit (
                     cuif.MemRead = 0;
                     cuif.MemWrite = 1;
                     cuif.RegWrite = 0;
-                    '
-                    if (cuif.funct3_mem > D) begin
+                    if (funct3_mem > D) begin
                         decode_error = 1;
                     end
                 end
 
-                case (cuif.funct3_mem) 
+                case (funct3_mem) 
                     B: cuif.MemData = MEM_BYTE;
                     H: cuif.MemData = MEM_HWORD;
                     W: cuif.MemData = MEM_WORD;
@@ -87,7 +102,7 @@ module control_unit (
             B_TYPE: begin
                 cuif.RegWrite = 0;
                 cuif.branch = 1;
-                cuif.immSel = IMM_BTYPE;
+                cuif.ImmType = IMM_BTYPE;
 
                 case (funct3_b) 
                     BEQ, BNE: cuif.ALUOp = ALU_SUB;
@@ -102,7 +117,7 @@ module control_unit (
                 cuif.jump = 1; 
             end
             JALR: begin
-                cuif.ImmType = IMM_ITYPE;
+                cuif.ImmType = IMM_IJTYPE;
                 cuif.immSel = 1;
                 cuif.jump = 1;
                 cuif.jalr = 1;

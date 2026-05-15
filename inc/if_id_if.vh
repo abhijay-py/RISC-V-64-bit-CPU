@@ -7,7 +7,7 @@ interface if_id_if;
     import types_pkg::*;
 
     // Changed format for instr fetch to avoid confusion with interfaces
-    word_t if_instr, instr_id
+    word_t if_instr, instr_id;
     logic if_pred_taken, pred_taken_id, flush, freeze, ihit; 
     logic [GHR_W-1:0] if_prev_ghr, prev_ghr_id;
     addr_t if_pc, pc_id; 

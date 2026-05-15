@@ -9,8 +9,7 @@ module registers_tb;
 
     always #(PERIOD/2) CLK++;
     registers_if rif ();
-    registers DUT (.CLK(CLK), .nRST(nRST), .rdata1(rif.rdata1), .rdata2(rif.rdata2), .RegWrite(rif.RegWrite),
-             .rs1(rif.rs1), .rs2(rif.rs2), .rd(rif.rd), .wdata(rif.wdata));
+    registers DUT (.CLK(CLK), .nRST(nRST), .rif(rif));
 
     test tb (CLK, nRST, rif);
 

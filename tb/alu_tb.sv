@@ -8,7 +8,7 @@ module alu_tb;
 
     always #(PERIOD/2) CLK++;
     alu_if aluif ();
-    alu DUT (.porta(aluif.porta), .portb(aluif.portb), .aluout(aluif.aluout),
+    alu DUT (.port_a(aluif.port_a), .port_b(aluif.port_b), .alu_out(aluif.alu_out),
              .zero(aluif.zero), .ALUOp(aluif.ALUOp));
 
     test tb (.CLK(CLK), .tbif(aluif));
@@ -16,9 +16,9 @@ module alu_tb;
 endmodule
 
 program test (
-    input logic CLK, 
+    input logic CLK,
     alu_if.tb tbif
-)
+);
     import types_pkg::*;
 
     initial begin

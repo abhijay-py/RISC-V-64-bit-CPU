@@ -64,7 +64,7 @@ package types_pkg;
         FENCE   = 7'b0001111,
         I_TYPE  = 7'b0010011,
         AUIPC   = 7'b0010111,
-        S_TYPE   = 7'b0010011,
+        S_TYPE   = 7'b0100011,
         R_TYPE  = 7'b0110011,
         LUI     = 7'b0110111,
         B_TYPE = 7'b1100011,
@@ -151,48 +151,6 @@ package types_pkg;
     }  funct12_env_t;
 
 
-    //INSTR
-    typedef struct packed {
-        funct7_r_t      funct7;
-        reg_t           rs2;
-        reg_t           rs1;
-        funct3_r_t      funct3;
-        reg_t           rd;
-        opcode_t        opcode;
-    } instr_r_t;
-
-    typedef struct packed{
-        logic [11:0]    imm;
-        reg_t           rs1;
-        funct3_i_t      funct3;
-        reg_t           rd;
-        opcode_t        opcode;
-    } instr_i_t;
-
-    typedef struct packed {
-        logic [11:0]    imm;
-        reg_t           rs1;
-        funct3_load_t   funct3;
-        reg_t           rd;
-        opcode_t        opcode;
-    } instr_load_t;
-
-    typedef struct packed {
-        logic [6:0]     upper_imm;
-        reg_t           rs2;
-        reg_t           rs1;
-        funct3_s_t      funct3;
-        logic [4:0]     lower_imm;
-        opcode_t        opcode;
-    } instr_s_t; //Includes SB type
-
-    typedef struct packed {
-        logic [19:0]    imm;
-        reg_t           rd;
-        opcode_t        opcode;
-    } instr_u_t; //Includes UJ type
-
-
     //CACHE FRAMES
     typedef struct packed {
         logic valid;
@@ -216,7 +174,7 @@ package types_pkg;
     } l2cache_frame;
 
     //BTB FRAME + TYPE
-    typedef struct packet {
+    typedef struct packed {
         logic [BTB_TAG_W-1:0] tag;
         logic [BTB_IDX_W-1:0] idx;
     } btb_pc_t;
@@ -266,8 +224,9 @@ package types_pkg;
         IMM_STYPE   = 3'b010,
         IMM_BTYPE  = 3'b011,
         IMM_UJTYPE  = 3'b100,
-        IMM_SHIFT   = 3'b101,
-        IMM_SHIFTW  = 3'b110
+        IMM_IJTYPE = 3'b101,
+        IMM_SHIFT   = 3'b110,
+        IMM_SHIFTW  = 3'b111
     } immtype_t;
 
     //Predictor Types

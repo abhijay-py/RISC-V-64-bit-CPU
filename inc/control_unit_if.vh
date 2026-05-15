@@ -5,32 +5,27 @@
 
 interface control_unit_if;
     import types_pkg::*;
-    //TODO: rewrite only pass the functs and use casts.
-
-    funct3_fence_t funct3_fence;
-    funct3_mem_t funct3_mem;
-    funct3_ri_t funct3_ri;
-    funct3_b_t funct3_b;
-    funct7_r_t funct7_r;
-    funct7_sr_t funct7_sr; 
-    funct12_env_t funct12_env;
+    logic [2:0] funct3;
+    logic [6:0] funct7;
+    logic [11:0] funct12;
     opcode_t opcode;
 
     aluop_t ALUOp;
     memdata_t MemData;
     immtype_t ImmType;
-    logic lui, immSel, auipc, jalr, jump, branch, MemToReg, MemRead, MemWrite, halt, RegWrite
-    
+    logic lui, immSel, auipc, jalr, jump, branch, MemToReg, MemRead, MemWrite, halt, RegWrite;
+
+
     //Control Unit ports
     modport cu (
-        input funct3_fence, funct3_ri, funct3_mem, funct3_b, funct7_r, funct7_sr, funct12_env, opcode,
+        input funct3, funct7, funct12, opcode,
         output ALUOp, MemData, ImmType, lui, immSel, auipc, jalr, jump, branch, MemToReg, MemRead, MemWrite, halt, RegWrite
     );
 
     //Testbench ports
     modport tb (
         input ALUOp, MemData, ImmType, lui, immSel, auipc, jalr, jump, branch, MemToReg, MemRead, MemWrite, halt, RegWrite,
-        output funct3_fence, funct3_ri, funct3_mem, funct3_b, funct7_r, funct7_sr, funct12_env, opcode
+        output funct3, funct7, funct12, opcode
     );
 
 endinterface
