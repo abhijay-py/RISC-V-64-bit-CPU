@@ -83,6 +83,7 @@ module control_unit (
                     cuif.MemRead = 0;
                     cuif.MemWrite = 1;
                     cuif.RegWrite = 0;
+                    cuif.ImmType = IMM_STYPE;
                     if (funct3_mem > D) begin
                         decode_error = 1;
                     end

@@ -6,20 +6,19 @@
 interface hazard_unit_if;
     import types_pkg::*;
 
-    logic flush, freeze, dhit, pred_taken, jump_taken; 
+    logic flush, freeze, dmemReady, ihit, pred_taken, jump_taken, MemRead_em;
     reg_t rs1_de, rs2_de, rd_em;
-    opcode_t opcode_em;
 
     //Hazard Unit ports
     modport hu (
-        input dhit, pred_taken, jump_taken, rs1_de, rs2_de, rd_em, opcode_em,
+        input dmemReady, ihit, pred_taken, jump_taken, rs1_de, rs2_de, rd_em, MemRead_em,
         output flush, freeze
     );
 
     //Testbench ports
     modport tb (
         input flush, freeze,
-        output dhit, pred_taken, jump_taken, rs1_de, rs2_de, rd_em, opcode_em
+        output dmemReady, ihit, pred_taken, jump_taken, rs1_de, rs2_de, rd_em, MemRead_em
     );
 
 endinterface

@@ -7,7 +7,7 @@ module alu (
   alu_if.alu aluif
 );
     logic overflow, alu_error;
-    dword_t result;
+    logic [64:0] result;
 
     assign aluif.zero = aluif.alu_out == '0;
 

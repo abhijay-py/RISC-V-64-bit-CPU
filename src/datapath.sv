@@ -21,7 +21,8 @@ module datapath (
     parameter PC_INIT = 0;
 
     addr_t pc, next_pc, old_next_pc;
-    logic jump_taken;
+    logic jump_taken,
+    logic dREN, dWEN, dmemReady, next_dREN, next_dWEN, next_dmemReady;
 
     alu_if aluif();
     branch_predictor_if bpif();
@@ -39,6 +40,11 @@ module datapath (
     control_unit cu (.cuif(cuif));
     registers regs (.CLK(CLK), .nRST(nRST), .rif(rfif));
     forwarding_unit fu (.fuif(fuif));
+    hazard_unit hu (.huif(huif));
+    if_id fd0 (.CLK(CLK), .nRST(nRST), .fdif(fdif));
+    id_exe de0 (.CLK(CLK), .nRST(nRST), .deif(deif));
+    exe_mem em0 (.CLK(CLK), .nRST(nRST), .emif(emif));
+    mem_wb mw0 (.CLK(CLK), .nRST(nRST), .mwif(mwif));
 
     always_ff @ (posedge CLK, negedge nRST) begin: PC
       if (!nRST) begin
@@ -63,10 +69,11 @@ module datapath (
     always_comb begin: MEMORY_SYSTEM
       dpif.iaddr = pc;
       dpif.daddr = emif.aluout_mem;
-      dpif.iREN = !emif.halt_mem; //Add after data resolved
-      dpif.dREN = emif.dREN_mem;
-      dpif.dWEN = emif.dWEN_mem;
+      dpif.iREN = !emif.halt_mem && dmemReady; //TODO: Add after data resolved
+      dpif.dREN = dREN;
+      dpif.dWEN = dWEN;
       dpif.dstore = emif.rdata2_mem;
+      dpif.dMemData = emif.MemData_mem;
     end 
     
     always_ff @ (posedge CLK, negedge nRST) begin: HALT
@@ -102,8 +109,6 @@ module datapath (
       deif.ihit = dpif.ihit;
       emif.ihit = dpif.ihit;
       mwif.ihit = dpif.ihit;
-
-      emif.dhit = dpif.dhit;
     end
 
     always_comb begin: IF_ID_LATCH
@@ -123,11 +128,6 @@ module datapath (
     always_comb begin: REGFILE
       rfif.rs1 = cuif.lui ? '0 : fdif.instr_id[19:15];
       rfif.rs2 = fdif.instr_id[24:20];
-      mwif.RegWrite_mem = emif.RegWrite_mem;
-      mwif.MemToReg_mem = emif.MemToReg_mem;
-      mwif.rd_mem = emif.rd_mem;
-      mwif.aluout_mem = emif.aluout_mem;
-      mwif.dmemdata_mem = dpif.dload;
       rfif.rd = mwif.rd_wb;
       rfif.RegWrite = mwif.RegWrite_wb;
       rfif.wdata = mwif.MemToReg_wb ? mwif.dmemdata_wb : mwif.aluout_wb;
@@ -228,9 +228,15 @@ module datapath (
       fuif.RegWrite_mw = mwif.RegWrite_wb;
     end
 
-    //TODO:
-    always_comb begin: HAZARD_UNIT
-
+    always_comb begin: HAZARD_UNIT     
+      huif.ihit = dpif.ihit;
+      huif.dmemReady = dmemReady;
+      huif.pred_taken = emif.pred_taken_mem;
+      huif.jump_taken = jump_taken;
+      huif.rs1_de = deif.rs1_exe;
+      huif.rs2_de = deif.rs2_exe;
+      huif.rd_em = emif.rd_mem;
+      huif.MemRead_em = emif.MemRead_mem;
     end
 
     always_comb begin: EX_MEM_LATCH
@@ -246,7 +252,6 @@ module datapath (
       emif.pc_exe = deif.pc_exe;
       emif.rd_exe = deif.rd_exe;
       emif.MemData_exe = deif.MemData_exe;
-      emif.opcode_exe = deif.opcode_exe;
       emif.funct3_exe = deif.funct3_exe;
       emif.imm_exe = deif.imm_exe;
       emif.aluout_exe = aluif.alu_out;
@@ -283,12 +288,43 @@ module datapath (
       end
     end
 
+    always_ff @ (posedge CLK, negedge nRST) begin: DMEM
+      if (!nRST || huif.flush) begin
+        dREN <= 0;
+        dWEN <= 0;
+        dmemReady <= 1;
+      end
+      else begin
+        dREN <= next_dREN;
+        dWEN <= next_dWEN;
+        dmemReady <= next_dmemReady;
+        mwif.dmemdata_mem <= dpif.dhit ? dpif.dload : mwif.dmemdata_mem;
+      end
+    end
+
+    always_comb begin: NEXT_DMEM
+      next_dREN = dREN;
+      next_dWEN = dWEN;
+      next_dmemReady = dmemReady;
+      next_dload
+
+      if (dpif.ihit) begin
+        next_dREN = deif.MemRead_exe;
+        next_dWEN = deif.MemWrite_exe;
+        next_dmemReady = !(next_dREN || next_dWEN);
+      end
+      else if (dpif.dhit) begin
+        next_dREN = 0;
+        next_dWEN = 0;
+        next_dmemReady = 1;  
+      end 
+    end
+
     always_comb begin: MEM_WB_LATCH
       mwif.RegWrite_mem = emif.RegWrite_mem;
       mwif.MemToReg_mem = emif.MemToReg_mem;
       mwif.rd_mem = emif.rd_mem;
       mwif.aluout_mem = emif.aluout_mem;
-      mwif.dmemdata_mem = dpif.dload;
     end
 
 endmodule
