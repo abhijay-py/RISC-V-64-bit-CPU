@@ -12,7 +12,7 @@ interface hazard_unit_if;
 
     //Hazard Unit ports
     modport hu (
-        input dhit, pred_taken, jump_taken, rs1, rs2, rd_em, opcode_em,
+        input dhit, pred_taken, jump_taken, rs1_de, rs2_de, rd_em, opcode_em,
         output flush, freeze
     );
 

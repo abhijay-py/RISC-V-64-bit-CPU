@@ -20,8 +20,10 @@ module datapath (
 
     parameter PC_INIT = 0;
 
-    addr_t pc;
+    addr_t pc, next_pc, old_next_pc;
+    logic jump_taken;
 
+    alu_if aluif();
     branch_predictor_if bpif();
     registers_if rfif();
     control_unit_if cuif();
@@ -32,78 +34,261 @@ module datapath (
     exe_mem_if emif();
     mem_wb_if mwif();
 
+    alu alu0 (.aluif(aluif));
+    branch_predictor bp (.CLK(CLK), .nRST(nRST), .bpif(bpif));
+    control_unit cu (.cuif(cuif));
+    registers regs (.CLK(CLK), .nRST(nRST), .rif(rfif));
+    forwarding_unit fu (.fuif(fuif));
+
+    always_ff @ (posedge CLK, negedge nRST) begin: PC
+      if (!nRST) begin
+        pc <= PC_INIT;
+      end
+      else if (dpif.ihit) begin 
+        pc <= next_pc;
+      end
+    end
+
+    always_comb begin: NEXT_PC_LOGIC
+      next_pc = pc + 4;
+
+      if (huif.flush) begin
+        next_pc = old_next_pc;
+      end
+      else if (bpif.pred_taken) begin
+        next_pc = bpif.target;
+      end
+    end
+
+    always_comb begin: MEMORY_SYSTEM
+      dpif.iaddr = pc;
+      dpif.daddr = emif.aluout_mem;
+      dpif.iREN = !emif.halt_mem; //Add after data resolved
+      dpif.dREN = emif.dREN_mem;
+      dpif.dWEN = emif.dWEN_mem;
+      dpif.dstore = emif.rdata2_mem;
+    end 
+    
+    always_ff @ (posedge CLK, negedge nRST) begin: HALT
+      if (!nRST) begin
+        dpif.halt <= 0;
+      end
+      else begin
+        dpif.halt <= dpif.halt | emif.halt_mem;
+      end
+    end
+
+    always_comb begin: BRANCH_PREDICTOR
+      bpif.pc = pc;
+      bpif.old_pc = emif.pc_mem;
+      bpif.old_pred_taken = emif.pred_taken_mem;
+      bpif.old_branch = emif.branch_mem;
+      bpif.old_jump = emif.jump_mem;
+      bpif.old_ghr = emif.prev_ghr_mem;
+      bpif.old_jump_taken = jump_taken;
+      bpif.old_next_pc = old_next_pc;
+    end
+
     always_comb begin: GLOBAL_LATCH_SIGNALS
-        // fdif.flush  =
-        // deif.flush  =
-        // fdif.freeze =
-        // deif.freeze =
-        fdif.ihit = dpif.ihit;
-        deif.ihit = dpif.ihit;
+      fdif.flush = huif.flush;
+      deif.flush = huif.flush;
+      emif.flush = huif.flush;
+      
+      fdif.freeze = huif.freeze;
+      deif.freeze = huif.freeze;
+      emif.freeze = huif.freeze;
+
+      fdif.ihit = dpif.ihit;
+      deif.ihit = dpif.ihit;
+      emif.ihit = dpif.ihit;
+      mwif.ihit = dpif.ihit;
+
+      emif.dhit = dpif.dhit;
     end
 
     always_comb begin: IF_ID_LATCH
-        fdif.if_pc         = pc;
-        fdif.if_instr      = dpif.iload;
-        fdif.if_pred_taken = bpif.pred_taken;
-        fdif.if_prev_ghr   = bpif.prev_ghr;
+      fdif.if_pc = pc;
+      fdif.if_instr = dpif.iload;
+      fdif.if_pred_taken = bpif.pred_taken;
+      fdif.if_prev_ghr = bpif.prev_ghr;
     end
 
-    always_comb begin: ID_CTRL
-        cuif.opcode  = opcode_t'(fdif.instr_id[6:0]);
-        cuif.funct3  = fdif.instr_id[14:12];
-        cuif.funct7  = fdif.instr_id[31:25];
-        cuif.funct12 = fdif.instr_id[31:20];
+    always_comb begin: CONTROL_UNIT
+      cuif.opcode = opcode_t'(fdif.instr_id[6:0]);
+      cuif.funct3 = fdif.instr_id[14:12];
+      cuif.funct7 = fdif.instr_id[31:25];
+      cuif.funct12 = fdif.instr_id[31:20];
     end
 
-    always_comb begin: ID_REGFILE
-        rfif.rs1 = fdif.instr_id[19:15];
-        rfif.rs2 = fdif.instr_id[24:20];
-        // rfif.rd       =
-        // rfif.RegWrite =
-        // rfif.wdata    =
+    always_comb begin: REGFILE
+      rfif.rs1 = cuif.lui ? '0 : fdif.instr_id[19:15];
+      rfif.rs2 = fdif.instr_id[24:20];
+      mwif.RegWrite_mem = emif.RegWrite_mem;
+      mwif.MemToReg_mem = emif.MemToReg_mem;
+      mwif.rd_mem = emif.rd_mem;
+      mwif.aluout_mem = emif.aluout_mem;
+      mwif.dmemdata_mem = dpif.dload;
+      rfif.rd = mwif.rd_wb;
+      rfif.RegWrite = mwif.RegWrite_wb;
+      rfif.wdata = mwif.MemToReg_wb ? mwif.dmemdata_wb : mwif.aluout_wb;
     end
 
     always_comb begin: IMM_GEN
-        deif.imm_id     = 64'd4;
-        deif.jumpimm_id = '0;
+      deif.imm_id = 64'd4;
+      deif.jumpimm_id = '0;
 
-        case (cuif.ImmType)
-            IMM_ITYPE:  deif.imm_id     = {{52{fdif.instr_id[31]}}, fdif.instr_id[31:20]};
-            IMM_UTYPE:  deif.imm_id     = {{32{fdif.instr_id[31]}}, fdif.instr_id[31:12], 12'b0};
-            IMM_STYPE:  deif.imm_id     = {{52{fdif.instr_id[31]}}, fdif.instr_id[31:25], fdif.instr_id[11:7]};
-            IMM_BTYPE:  deif.imm_id     = {{52{fdif.instr_id[31]}}, fdif.instr_id[7], fdif.instr_id[30:25], fdif.instr_id[11:8], 1'b0};
-            IMM_UJTYPE: deif.jumpimm_id = {{44{fdif.instr_id[31]}}, fdif.instr_id[19:12], fdif.instr_id[20], fdif.instr_id[30:21], 1'b0};
-            IMM_IJTYPE: deif.jumpimm_id = {{52{fdif.instr_id[31]}}, fdif.instr_id[31:20]};
-            IMM_SHIFT:  deif.imm_id     = {58'b0, fdif.instr_id[25:20]};
-            IMM_SHIFTW: deif.imm_id     = {59'b0, fdif.instr_id[24:20]};
-        endcase
+      case (cuif.ImmType)
+        IMM_ITYPE: deif.imm_id = {{52{fdif.instr_id[31]}}, fdif.instr_id[31:20]};
+        IMM_UTYPE: deif.imm_id = {{32{fdif.instr_id[31]}}, fdif.instr_id[31:12], 12'b0};
+        IMM_STYPE: deif.imm_id = {{52{fdif.instr_id[31]}}, fdif.instr_id[31:25], fdif.instr_id[11:7]};
+        IMM_BTYPE: deif.imm_id = {{52{fdif.instr_id[31]}}, fdif.instr_id[7], fdif.instr_id[30:25], fdif.instr_id[11:8], 1'b0};
+        IMM_UJTYPE: deif.jumpimm_id = {{44{fdif.instr_id[31]}}, fdif.instr_id[19:12], fdif.instr_id[20], fdif.instr_id[30:21], 1'b0};
+        IMM_IJTYPE: deif.jumpimm_id = {{52{fdif.instr_id[31]}}, fdif.instr_id[31:20]};
+        IMM_SHIFT: deif.imm_id = {58'b0, fdif.instr_id[25:20]};
+        IMM_SHIFTW: deif.imm_id = {59'b0, fdif.instr_id[24:20]};
+      endcase
     end
 
     always_comb begin: ID_EX_LATCH
-        deif.pc_id         = fdif.pc_id;
-        deif.prev_ghr_id   = fdif.prev_ghr_id;
-        deif.pred_taken_id = fdif.pred_taken_id;
+      deif.pc_id = fdif.pc_id;
+      deif.prev_ghr_id = fdif.prev_ghr_id;
+      deif.pred_taken_id = fdif.pred_taken_id;
 
-        deif.rd_id         = fdif.instr_id[11:7];
-        deif.rs1_id        = fdif.instr_id[19:15];
-        deif.rs2_id        = fdif.instr_id[24:20];
-        deif.funct3_id     = fdif.instr_id[14:12];
+      deif.rd_id = fdif.instr_id[11:7];
+      deif.rs1_id = fdif.instr_id[19:15];
+      deif.rs2_id = fdif.instr_id[24:20];
+      deif.funct3_id = fdif.instr_id[14:12];
 
-        deif.rdata1_id     = rfif.rdata1;
-        deif.rdata2_id     = rfif.rdata2;
+      deif.rdata1_id = rfif.rdata1;
+      deif.rdata2_id = rfif.rdata2;
 
-        deif.RegWrite_id   = cuif.RegWrite;
-        deif.MemToReg_id   = cuif.MemToReg;
-        deif.MemRead_id    = cuif.MemRead;
-        deif.MemWrite_id   = cuif.MemWrite;
-        deif.ALUOp_id      = cuif.ALUOp;
-        deif.immSel_id     = cuif.immSel;
-        deif.jump_id       = cuif.jump;
-        deif.branch_id     = cuif.branch;
-        deif.jalr_id       = cuif.jalr;
-        deif.auipc_id      = cuif.auipc;
-        deif.MemData_id    = cuif.MemData;
-        deif.halt_id       = cuif.halt;
+      deif.RegWrite_id = cuif.RegWrite;
+      deif.MemToReg_id = cuif.MemToReg;
+      deif.MemRead_id = cuif.MemRead;
+      deif.MemWrite_id = cuif.MemWrite;
+      deif.ALUOp_id = cuif.ALUOp;
+      deif.immSel_id = cuif.immSel;
+      deif.jump_id = cuif.jump;
+      deif.branch_id = cuif.branch;
+      deif.jalr_id = cuif.jalr;
+      deif.auipc_id = cuif.auipc;
+      deif.MemData_id = cuif.MemData;
+      deif.halt_id = cuif.halt;
+      deif.opcode_id = opcode_t'(fdif.instr_id[6:0]);
+    end
+
+    always_comb begin: ALU
+      aluif.port_a = deif.rdata1_exe;
+      aluif.port_b = deif.rdata2_exe;
+      aluif.ALUOp = deif.ALUOp_exe;
+
+      if (deif.jump_exe || deif.auipc_exe) begin
+        aluif.port_a = deif.pc_exe;
+      end
+      else if (fuif.forward_one == 2'b01) begin
+        aluif.port_a = emif.aluout_mem;
+      end
+      else if (fuif.forward_one == 2'b10) begin
+        aluif.port_a = rfif.wdata;
+      end
+
+      if (deif.immSel_exe) begin
+        aluif.port_b = deif.imm_exe;
+      end
+      else if (fuif.forward_two == 2'b01) begin
+        aluif.port_b = emif.aluout_mem;
+      end
+      else if (fuif.forward_two == 2'b10) begin
+        aluif.port_b = rfif.wdata;
+      end
+    end
+
+    always_comb begin: JUMP_ADDR
+      emif.jumpaddr_exe = deif.pc_exe + deif.jumpimm_exe;
+
+      if (deif.jalr_exe) begin
+        emif.jumpaddr_exe = (deif.rdata1_exe + deif.jumpimm_exe) & ~64'h1;
+        if (fuif.forward_jalr == 2'b01) begin
+          emif.jumpaddr_exe = (emif.aluout_mem + deif.jumpimm_exe) & ~64'h1;
+        end
+        else if (fuif.forward_jalr == 2'b10) begin
+          emif.jumpaddr_exe = (rfif.wdata + deif.jumpimm_exe) & ~64'h1;
+        end
+      end
+    end
+
+    always_comb begin: FORWARDING_UNIT
+      fuif.rs1_de = deif.rs1_exe;
+      fuif.rs2_de = deif.rs2_exe;
+      fuif.opcode_de = deif.opcode_exe;
+      fuif.rd_em = emif.rd_mem;
+      fuif.RegWrite_em = emif.RegWrite_mem;
+      fuif.MemRead_em = emif.MemRead_mem;
+      fuif.rd_mw = mwif.rd_wb;
+      fuif.RegWrite_mw = mwif.RegWrite_wb;
+    end
+
+    //TODO:
+    always_comb begin: HAZARD_UNIT
+
+    end
+
+    always_comb begin: EX_MEM_LATCH
+      emif.pred_taken_exe = deif.pred_taken_exe;
+      emif.prev_ghr_exe = deif.prev_ghr_exe;
+      emif.RegWrite_exe = deif.RegWrite_exe;
+      emif.halt_exe = deif.halt_exe;
+      emif.MemToReg_exe = deif.MemToReg_exe;
+      emif.MemRead_exe = deif.MemRead_exe;
+      emif.MemWrite_exe = deif.MemWrite_exe;
+      emif.jump_exe = deif.jump_exe;
+      emif.branch_exe = deif.branch_exe;
+      emif.pc_exe = deif.pc_exe;
+      emif.rd_exe = deif.rd_exe;
+      emif.MemData_exe = deif.MemData_exe;
+      emif.opcode_exe = deif.opcode_exe;
+      emif.funct3_exe = deif.funct3_exe;
+      emif.imm_exe = deif.imm_exe;
+      emif.aluout_exe = aluif.alu_out;
+      emif.zero_exe = aluif.zero;
+
+      emif.rdata2_exe = deif.rdata2_exe;
+      if (fuif.forward_two == 2'b01)
+        emif.rdata2_exe = emif.aluout_mem;
+      else if (fuif.forward_two == 2'b10)
+        emif.rdata2_exe = rfif.wdata;
+    end
+
+    always_comb begin: JUMP_BRANCH_UNIT
+      jump_taken = 0;
+      old_next_pc = emif.pc_mem + 4;
+
+      if (emif.jump_mem) begin
+        jump_taken = 1;
+        old_next_pc = emif.jumpaddr_mem;
+      end
+      else if (emif.branch_mem) begin
+        case (emif.funct3_mem) 
+          BEQ: jump_taken = emif.zero_mem ? 1 : 0;
+          BNE: jump_taken = emif.zero_mem ? 0 : 1;
+          BLT: jump_taken = emif.aluout_mem ? 1 : 0;
+          BLTU: jump_taken = emif.aluout_mem ? 1 : 0;
+          BGE: jump_taken = emif.aluout_mem ? 0 : 1;
+          BGEU: jump_taken = emif.aluout_mem ? 0 : 1;
+        endcase
+        
+        if (jump_taken) begin
+          old_next_pc = emif.pc_mem + addr_t'(signed'(emif.imm_mem));
+        end
+      end
+    end
+
+    always_comb begin: MEM_WB_LATCH
+      mwif.RegWrite_mem = emif.RegWrite_mem;
+      mwif.MemToReg_mem = emif.MemToReg_mem;
+      mwif.rd_mem = emif.rd_mem;
+      mwif.aluout_mem = emif.aluout_mem;
+      mwif.dmemdata_mem = dpif.dload;
     end
 
 endmodule

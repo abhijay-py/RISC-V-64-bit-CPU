@@ -132,7 +132,7 @@ module control_unit (
                 cuif.auipc = 1;
                 cuif.immSel = 1;
             end
-            FENCE, ENV_CSR: begin //Temporarily NOOP (not officially in terms of instr) till a more complete CPU is made.
+            FENCE, ENV_CSR: begin //TODO: Temporarily NOOP (not officially in terms of instr) till a more complete CPU is made.
                 cuif.RegWrite = 0; //Prevents ops
             end
             HALT: begin

@@ -6,21 +6,19 @@
 interface forwarding_unit_if;
     import types_pkg::*;
 
-    logic forward_one, forward_two; 
+    logic [1:0] forward_one, forward_two, forward_jalr;
     reg_t rs1_de, rs2_de, rd_mw, rd_em;
-    logic RegWrite_em, RegWrite_mw;
+    logic RegWrite_em, RegWrite_mw, MemRead_em;
     opcode_t opcode_de;
 
-    //Hazard Unit ports
-    modport hu (
-        input rs1_de, rs2_de, rd_mw, rd_em, RegWrite_em, RegWrite_mw, opcode_de,
-        output forward_one, forward_two
+    modport fu (
+        input rs1_de, rs2_de, rd_mw, rd_em, RegWrite_em, RegWrite_mw, MemRead_em, opcode_de,
+        output forward_one, forward_two, forward_jalr
     );
 
-    //Testbench ports
     modport tb (
-        input forward_one, forward_two,
-        output rs1_de, rs2_de, rd_mw, rd_em, RegWrite_em, RegWrite_mw, opcode_de
+        input forward_one, forward_two, forward_jalr,
+        output rs1_de, rs2_de, rd_mw, rd_em, RegWrite_em, RegWrite_mw, MemRead_em, opcode_de
     );
 
 endinterface

@@ -108,23 +108,23 @@ module branch_predictor (
         if (bpif.old_branch || bpif.old_jump) begin
             if (next_btbz_frame.valid && oldpc_for_btb.tag == next_btbz_frame.tag) begin
                 next_lru_write_entry = 1;
-                next_btbz_frame.pc = bpif.next_pc;
+                next_btbz_frame.pc = bpif.old_next_pc;
                 btbz_en = 1;
             end
             else if (next_btbo_frame.valid && oldpc_for_btb.tag == next_btbo_frame.tag) begin
                 next_lru_write_entry = 0;
-                next_btbo_frame.pc = bpif.next_pc;
+                next_btbo_frame.pc = bpif.old_next_pc;
                 btbo_en = 1;
             end
             else begin
                 next_lru_write_entry = ~lru[oldpc_for_btb.idx];
 
                 if (lru[oldpc_for_btb.idx]) begin
-                    next_btbo_frame = '{valid: 1'b1, jump: bpif.old_jump, tag: oldpc_for_btb.tag, pc: bpif.next_pc};
+                    next_btbo_frame = '{valid: 1'b1, jump: bpif.old_jump, tag: oldpc_for_btb.tag, pc: bpif.old_next_pc};
                     btbo_en = 1;
                 end
                 else begin
-                    next_btbz_frame = '{valid: 1'b1, jump: bpif.old_jump, tag: oldpc_for_btb.tag, pc: bpif.next_pc};
+                    next_btbz_frame = '{valid: 1'b1, jump: bpif.old_jump, tag: oldpc_for_btb.tag, pc: bpif.old_next_pc};
                     btbz_en = 1;
                 end
             end
@@ -165,7 +165,7 @@ module branch_predictor (
             btb_jump_found = btbo_result.jump;
         end
         else if (bpif.pc == bpif.old_pc && (btbo_en || btbz_en)) begin
-            next_target = bpif.next_pc;
+            next_target = bpif.old_next_pc;
             btb_entry_found = 1;
             btb_jump_found = bpif.old_jump;
         end
