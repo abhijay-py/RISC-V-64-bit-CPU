@@ -2,7 +2,7 @@
 `include "types_pkg.vh"
 
 import types_pkg::*;
-//TODO: EDIT FOR DMEM SIGNAL LATCHING
+
 module exe_mem (
   input logic CLK, nRST,
   exe_mem_if.em emif

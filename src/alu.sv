@@ -19,11 +19,15 @@ module alu (
 
         case (aluif.ALUOp)
             ALU_ADD: begin
-                result = aluif.port_a + aluif.port_b;
+                result = {aluif.port_a[63], aluif.port_a} + {aluif.port_b[63], aluif.port_b};
                 aluif.alu_out = result[63:0];
-                overflow = result[64];
+                overflow = result[64] ^ result[63];
             end
-            ALU_SUB:  aluif.alu_out = aluif.port_a - aluif.port_b;
+            ALU_SUB: begin
+                result = {aluif.port_a[63], aluif.port_a} - {aluif.port_b[63], aluif.port_b};
+                aluif.alu_out = result[63:0];
+                overflow = result[64] ^ result[63];
+            end
             ALU_AND:  aluif.alu_out = aluif.port_a & aluif.port_b;
             ALU_OR:   aluif.alu_out = aluif.port_a | aluif.port_b;
             ALU_SLL:  aluif.alu_out = aluif.port_a << aluif.port_b[5:0];

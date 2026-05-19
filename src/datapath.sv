@@ -69,7 +69,7 @@ module datapath (
     always_comb begin: MEMORY_SYSTEM
       dpif.iaddr = pc;
       dpif.daddr = emif.aluout_mem;
-      dpif.iREN = !emif.halt_mem && dmemReady; //TODO: Add after data resolved
+      dpif.iREN = !emif.halt_mem && dmemReady;
       dpif.dREN = dREN;
       dpif.dWEN = dWEN;
       dpif.dstore = emif.rdata2_mem;

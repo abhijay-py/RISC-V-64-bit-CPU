@@ -93,24 +93,6 @@ package types_pkg;
         FENCE_I_3 = 3'b001
     } funct3_fence_t;
 
-    // typedef enum logic [FUNCT3_W-1:0] {
-    //     ADDI    = 3'b000,
-    //     SLLI    = 3'b001,
-    //     SLTI    = 3'b010,
-    //     SLTIU   = 3'b011,
-    //     XORI    = 3'b100,
-    //     SRAI_SRLI = 3'b101,
-    //     ORI     = 3'b110,
-    //     ANDI    = 3'b111
-    // } funct3_i_t;
-
-    // typedef enum logic [FUNCT3_W-1:0] {
-    //     SB      = 3'b000,
-    //     SH      = 3'b001,
-    //     SW      = 3'b010,
-    //     SD      = 3'b011
-    // } funct3_s_t;
-
     typedef enum logic [FUNCT3_W-1:0] {
         ADD_SUB = 3'b000,
         SLL     = 3'b001,

@@ -21,7 +21,7 @@ module control_unit (
     assign funct3_ri = funct3_ri_t'(cuif.funct3);
     assign funct3_b = funct3_b_t'(cuif.funct3);
     assign funct7_r = funct7_r_t'(cuif.funct7);
-    assign funct7_sr = funct7_sr_t'(cuif.funct7);
+    assign funct7_sr = funct7_sr_t'(cuif.funct7[6:1]);
     assign funct12_env = funct12_env_t'(cuif.funct12);
 
     always_comb begin
