@@ -59,45 +59,44 @@ endfunction()
 function(add_module_targets MOD TB_FILE)
     set(SRC_FILE ${SRC_DIR}/${MOD}.sv)
     set(MOD_OUT  ${OUT_DIR}/${MOD})
+    set(SIM_LOG  ${CMAKE_BINARY_DIR}/sim.log)
+    set(COV_LOG  ${CMAKE_BINARY_DIR}/coverage.log)
 
     parse_deps(${TB_FILE} DEP_SRCS)
+
+    string(JOIN " " VLT_FLAGS_STR ${VLT_FLAGS})
+    string(JOIN " " DEP_SRCS_STR  ${DEP_SRCS})
 
     # -- sim ----------------------------------------------------------------
     add_custom_target(sim_${MOD}
         COMMAND ${CMAKE_COMMAND} -E make_directory ${MOD_OUT}
-        COMMAND ${VERILATOR} ${VLT_FLAGS} --trace
-                ${SRC_FILE} ${DEP_SRCS} ${TB_FILE}
-                --top ${MOD}_tb --Mdir ${MOD_OUT} -o ${MOD}_sim
-        COMMAND ${MOD_OUT}/${MOD}_sim${EXE_EXT}
+        COMMAND sh -c "${VERILATOR} ${VLT_FLAGS_STR} --trace ${SRC_FILE} ${DEP_SRCS_STR} ${TB_FILE} --top ${MOD}_tb --Mdir ${MOD_OUT} -o ${MOD}_sim 2>&1 | tee ${SIM_LOG}"
+        COMMAND sh -c "${MOD_OUT}/${MOD}_sim${EXE_EXT} 2>&1 | tee -a ${SIM_LOG}"
         COMMAND ${CMAKE_COMMAND} -E rename
-                ${CMAKE_SOURCE_DIR}/dump.vcd
-                ${CMAKE_SOURCE_DIR}/${MOD}.vcd
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+                ${CMAKE_BINARY_DIR}/dump.vcd
+                ${CMAKE_BINARY_DIR}/${MOD}.vcd
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMENT "[sim] ${MOD}"
-        VERBATIM
     )
 
     # -- coverage -----------------------------------------------------------
     add_custom_target(coverage_${MOD}
         COMMAND ${CMAKE_COMMAND} -E make_directory ${MOD_OUT}
-        COMMAND ${VERILATOR} ${VLT_FLAGS} --coverage
-                ${SRC_FILE} ${DEP_SRCS} ${TB_FILE}
-                --top ${MOD}_tb --Mdir ${MOD_OUT} -o ${MOD}_cov
-        COMMAND ${MOD_OUT}/${MOD}_cov${EXE_EXT}
-        COMMAND ${VERILATOR_COVERAGE} ${CMAKE_SOURCE_DIR}/coverage.dat
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMAND sh -c "${VERILATOR} ${VLT_FLAGS_STR} --coverage ${SRC_FILE} ${DEP_SRCS_STR} ${TB_FILE} --top ${MOD}_tb --Mdir ${MOD_OUT} -o ${MOD}_cov 2>&1 | tee ${COV_LOG}"
+        COMMAND sh -c "${MOD_OUT}/${MOD}_cov${EXE_EXT} 2>&1 | tee -a ${COV_LOG}"
+        COMMAND sh -c "${VERILATOR_COVERAGE} ${CMAKE_BINARY_DIR}/coverage.dat 2>&1 | tee -a ${COV_LOG}"
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMENT "[coverage] ${MOD}"
-        VERBATIM
     )
 
     # -- wave ---------------------------------------------------------------
     add_custom_target(wave_${MOD}
         COMMAND ${CMAKE_COMMAND}
                 -DGTKWAVE=${GTKWAVE}
-                -DVCD=${CMAKE_SOURCE_DIR}/${MOD}.vcd
+                -DVCD=${CMAKE_BINARY_DIR}/${MOD}.vcd
                 -DGTKW=${GTKW_DIR}/${MOD}.gtkw
                 -P ${CMAKE_SOURCE_DIR}/cmake/wave.cmake
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMENT "[wave] ${MOD}"
         VERBATIM
     )
@@ -119,33 +118,41 @@ foreach(TB_FILE IN LISTS TB_FILES)
 endforeach()
 
 # ---------------------------------------------------------------------------
-# clean_artifacts — mirrors: rm -rf out/ *.vcd *.log coverage.dat
+# Extend the built-in `clean` target to also remove logs, VCDs, coverage.dat,
+# and the verilator out/ directory.
 # ---------------------------------------------------------------------------
-add_custom_target(clean_artifacts
-    COMMAND ${CMAKE_COMMAND}
-            -DBUILD_DIR=${CMAKE_BINARY_DIR}
-            -DSOURCE_DIR=${CMAKE_SOURCE_DIR}
-            -P ${CMAKE_SOURCE_DIR}/cmake/clean.cmake
-    COMMENT "Removing build artifacts"
-    VERBATIM
+set(EXTRA_CLEAN_FILES
+    ${CMAKE_BINARY_DIR}/sim.log
+    ${CMAKE_BINARY_DIR}/coverage.log
+    ${CMAKE_BINARY_DIR}/coverage.dat
+    ${CMAKE_BINARY_DIR}/out
 )
+foreach(MOD IN LISTS DISCOVERED_MODS)
+    list(APPEND EXTRA_CLEAN_FILES ${CMAKE_BINARY_DIR}/${MOD}.vcd)
+endforeach()
+set_directory_properties(PROPERTIES ADDITIONAL_CLEAN_FILES "${EXTRA_CLEAN_FILES}")
 
 # ---------------------------------------------------------------------------
 # help
 # ---------------------------------------------------------------------------
 string(REPLACE ";" "  " MODS_PRETTY "${DISCOVERED_MODS}")
-add_custom_target(help
+add_custom_target(help_vlt
     COMMAND ${CMAKE_COMMAND} -E echo ""
     COMMAND ${CMAKE_COMMAND} -E echo "Usage:"
     COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build <build_dir> --target sim_<module>        compile + run testbench"
     COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build <build_dir> --target coverage_<module>   compile + run with coverage"
     COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build <build_dir> --target wave_<module>        open GTKWave waveform viewer"
-    COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build <build_dir> --target clean_artifacts      remove all build artifacts"
+    COMMAND ${CMAKE_COMMAND} -E echo "  cmake --build <build_dir> --target clean               remove all build artifacts"
     COMMAND ${CMAKE_COMMAND} -E echo ""
     COMMAND ${CMAKE_COMMAND} -E echo "Deps:"
     COMMAND ${CMAKE_COMMAND} -E echo "  Add '// DEPS: mod1 mod2' on the first line of tb/<module>_tb.sv"
     COMMAND ${CMAKE_COMMAND} -E echo "  to pull in extra src/*.sv files the DUT instantiates."
     COMMAND ${CMAKE_COMMAND} -E echo "  src/<module>.sv and all .vh files are always included automatically."
+    COMMAND ${CMAKE_COMMAND} -E echo ""
+    COMMAND ${CMAKE_COMMAND} -E echo "Output (all under <build_dir>/):"
+    COMMAND ${CMAKE_COMMAND} -E echo "  sim.log / coverage.log   simulation and coverage logs"
+    COMMAND ${CMAKE_COMMAND} -E echo "  <module>.vcd             waveform for GTKWave"
+    COMMAND ${CMAKE_COMMAND} -E echo "  out/<module>/            verilator obj + binary"
     COMMAND ${CMAKE_COMMAND} -E echo ""
     COMMAND ${CMAKE_COMMAND} -E echo "Discovered modules: ${MODS_PRETTY}"
     COMMAND ${CMAKE_COMMAND} -E echo ""

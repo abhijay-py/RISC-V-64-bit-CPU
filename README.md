@@ -2,3 +2,59 @@
 This reposistory contains the current state of the journey towards creating a 2-core RV64IMF CPU with private and seperate instruction + data L1 caches with a shared inclusive L2 cache, utilizing the MOESI protocol for cache coherence.<br><br>
 The current design consists of a standard single core RV64I CPU with a standard 5 stage pipeline and a 2-bit saturating counter branch predictor. The multiply + floating point extensions will be added on later in addition to out-of-order execution and a modified pipeline to maximize performance. After that, a second core will be added along with cache coherency protocols.<br><br>
 Some future ideas being considered to be implemented after implementing the aforementioned ideas include hyperthreading, implementing some processor features to aid running an OS (such as CSR instructions + hint instructions), other RISC-V extensions, or further architectural revisions.
+
+## Dependencies
+
+- [Verilator](https://verilator.org) (5.0+)
+- [GTKWave](https://gtkwave.sourceforge.net) (waveform viewer, optional)
+- CMake 3.20+
+- g++ with C++20 coroutine support
+
+## Building
+
+Configure the build directory once from the project root:
+
+```bash
+cmake -B build
+```
+
+Re-run this if you add new source or testbench files — CMake auto-discovers modules but needs to reconfigure to pick up new ones.
+
+## Running Simulations
+
+```bash
+cmake --build build --target sim_<module>
+cmake --build build --target coverage_<module>
+cmake --build build --target wave_<module>
+```
+
+**Examples:**
+```bash
+cmake --build build --target sim_registers
+cmake --build build --target coverage_alu
+cmake --build build --target wave_registers
+```
+
+Logs (`sim.log`, `coverage.log`) and waveforms (`<module>.vcd`) are written to the build directory. GTKWave save files go in `gtkw/<module>.gtkw` in the project root.
+
+## Adding a New Module
+
+1. Add the source file to `src/<module>.sv`
+2. Add the testbench to `tb/<module>_tb.sv`
+3. If the module instantiates other modules, add `// DEPS: dep1 dep2` on the first line of the testbench
+4. Re-run `cmake -B build` to register the new targets
+
+**Example testbench header with deps:**
+```systemverilog
+// DEPS: alu registers
+`include "datapath_if.vh"
+...
+```
+
+## Cleaning
+
+```bash
+cmake --build build --target clean
+```
+
+Removes all build outputs, VCD files, and logs.
