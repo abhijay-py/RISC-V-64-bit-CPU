@@ -1,11 +1,10 @@
 `include "hazard_unit_if.vh"
 `include "types_pkg.vh"
 
-import types_pkg::*;
-
 module hazard_unit (
   hazard_unit_if.hu huif
 );
+    import types_pkg::*;
 
   always_comb begin
     huif.flush = 0;

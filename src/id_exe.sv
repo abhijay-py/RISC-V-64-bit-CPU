@@ -1,8 +1,6 @@
 `include "id_exe_if.vh"
 `include "types_pkg.vh"
 
-import types_pkg::*;
-
 module id_exe (
   input logic CLK, nRST,
   id_exe_if.de deif

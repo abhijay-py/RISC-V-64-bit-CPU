@@ -1,11 +1,10 @@
 `include "forwarding_unit_if.vh"
 `include "types_pkg.vh"
 
-import types_pkg::*;
-
 module forwarding_unit (
   forwarding_unit_if.fu fuif
 );
+    import types_pkg::*;
 
   always_comb begin: FORWARD_ONE
     fuif.forward_one = 2'b00;

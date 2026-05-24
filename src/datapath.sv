@@ -11,17 +11,16 @@
 
 `include "types_pkg.vh"
 
-import types_pkg::*;
-
 module datapath (
   input logic CLK, nRST,
   datapath_if.dp dpif
 );
+    import types_pkg::*;
 
     parameter PC_INIT = 0;
 
     addr_t pc, next_pc, old_next_pc;
-    logic jump_taken,
+    logic jump_taken;
     logic dREN, dWEN, dmemReady, next_dREN, next_dWEN, next_dmemReady;
 
     alu_if aluif();
@@ -306,7 +305,6 @@ module datapath (
       next_dREN = dREN;
       next_dWEN = dWEN;
       next_dmemReady = dmemReady;
-      next_dload
 
       if (dpif.ihit) begin
         next_dREN = deif.MemRead_exe;

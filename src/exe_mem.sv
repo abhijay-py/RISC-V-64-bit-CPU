@@ -1,8 +1,6 @@
 `include "exe_mem_if.vh"
 `include "types_pkg.vh"
 
-import types_pkg::*;
-
 module exe_mem (
   input logic CLK, nRST,
   exe_mem_if.em emif

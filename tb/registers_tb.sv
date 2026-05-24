@@ -3,94 +3,91 @@
 parameter PERIOD = 10;
 
 module registers_tb;
+    import types_pkg::*;
 
     logic CLK = 0;
     logic nRST;
 
-    always #(PERIOD/2) CLK++;
+    always #(PERIOD/2) CLK <= ~CLK;
+
     registers_if rif ();
     registers DUT (.CLK(CLK), .nRST(nRST), .rif(rif));
 
-    test tb (CLK, nRST, rif);
-
-endmodule
-
-program test (
-    input logic CLK, 
-    output logic nRST,
-    registers_if.tb tbif
-);
-    //import types_pkg::*;
+    dword_t rdata1, rdata2;
+    assign rdata1 = rif.rdata1;
+    assign rdata2 = rif.rdata2;
 
     initial begin
-        $monitor("CLK = %b, rdata1 = %x, rdata2 = %x", CLK, tbif.rdata1, tbif.rdata2);
+        $dumpfile("dump.vcd");
+        $dumpvars(0, registers_tb);
+        $monitor("CLK = %b, rdata1 = %x, rdata2 = %x", CLK, rdata1, rdata2);
         nRST = 0;
-        tbif.RegWrite = 0;
-        tbif.rs1 = 0;
-        tbif.rs2 = 0;
-        tbif.rd = 0;
-        tbif.wdata = 0;
+        rif.RegWrite = 0;
+        rif.rs1 = 0;
+        rif.rs2 = 0;
+        rif.rd = 0;
+        rif.wdata = 0;
         //NRST Test
         #(PERIOD)
         nRST = 1;
-        tbif.rs1 = 0;
-        tbif.rs2 = 9;
+        rif.rs1 = 0;
+        rif.rs2 = 9;
         #(PERIOD)
-        tbif.rs1 = 13;
-        tbif.rs2 = 17;
+        rif.rs1 = 13;
+        rif.rs2 = 17;
         #(PERIOD)
-        tbif.rs1 = 25;
-        tbif.rs2 = 31;
+        rif.rs1 = 25;
+        rif.rs2 = 31;
         #(PERIOD)
         //Write to reg 0 test
-        tbif.RegWrite = 1;
-        tbif.wdata = 100;
-        tbif.rd = 0;
+        rif.RegWrite = 1;
+        rif.wdata = 100;
+        rif.rd = 0;
         #(PERIOD)
         //Write and read from register tests
-        tbif.rs1 = 0;
-        tbif.rs2 = 0;
-        tbif.rd = 7;
-        tbif.wdata = 700;
+        rif.rs1 = 0;
+        rif.rs2 = 0;
+        rif.rd = 7;
+        rif.wdata = 700;
         #(PERIOD)
-        tbif.rs1 = 0;
-        tbif.rs2 = 7;
-        tbif.rd = 15;
-        tbif.wdata = 1500;
+        rif.rs1 = 0;
+        rif.rs2 = 7;
+        rif.rd = 15;
+        rif.wdata = 1500;
         #(PERIOD)
-        tbif.rs1 = 15;
-        tbif.rs2 = 0;
-        tbif.rd = 30;
-        tbif.wdata = 3000;
+        rif.rs1 = 15;
+        rif.rs2 = 0;
+        rif.rd = 30;
+        rif.wdata = 3000;
         #(PERIOD)
-        tbif.rs1 = 15;
-        tbif.rs2 = 30;
-        tbif.rd = 1;
-        tbif.wdata = 100;
+        rif.rs1 = 15;
+        rif.rs2 = 30;
+        rif.rd = 1;
+        rif.wdata = 100;
         #(PERIOD)
-         tbif.rs1 = 1;
-        tbif.rs2 = 0;
-        tbif.rd = 1;
-        tbif.wdata = 101;
+        rif.rs1 = 1;
+        rif.rs2 = 0;
+        rif.rd = 1;
+        rif.wdata = 101;
         #(PERIOD)
         //Write maximum value
-        tbif.rs1 = 0;
-        tbif.rs2 = 1;
-        tbif.rd = 14;
-        tbif.wdata = 32'hffffffff;
+        rif.rs1 = 0;
+        rif.rs2 = 1;
+        rif.rd = 14;
+        rif.wdata = 64'hffffffffffffffff;
         #(PERIOD)
-        tbif.rs1 = 0;
-        tbif.rs2 = 14;
-        tbif.RegWrite = 0;
+        rif.rs1 = 0;
+        rif.rs2 = 14;
+        rif.RegWrite = 0;
         #(PERIOD)
         //Check that we aren't writing on the same clock
-        tbif.rs2 = 0;
-        tbif.rs1 = 5;
-        tbif.RegWrite = 1;
-        tbif.rd = 5;
-        tbif.wdata = 500;
+        rif.rs2 = 0;
+        rif.rs1 = 5;
+        rif.RegWrite = 1;
+        rif.rd = 5;
+        rif.wdata = 500;
         #(PERIOD)
         $finish;
     end
 
-endprogram
+endmodule

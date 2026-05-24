@@ -1,11 +1,10 @@
 `include "alu_if.vh"
 `include "types_pkg.vh"
 
-import types_pkg::*;
-
 module alu (
   alu_if.alu aluif
 );
+    import types_pkg::*;
     logic overflow, alu_error;
     logic [64:0] result;
 

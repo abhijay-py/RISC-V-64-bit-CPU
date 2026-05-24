@@ -3,6 +3,8 @@
 
 package types_pkg;
 
+/* verilator lint_off UNUSEDPARAM */
+
     //data sizes
     parameter BYTE_W    = 8;
     parameter HWORD_W   = BYTE_W * 2;
@@ -218,3 +220,8 @@ package types_pkg;
         BP_WT = 2'b10,
         BP_ST = 2'b11
     } branchpred_t;
+
+/* verilator lint_on UNUSEDPARAM */
+
+endpackage
+`endif

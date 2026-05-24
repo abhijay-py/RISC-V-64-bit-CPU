@@ -1,8 +1,6 @@
 `include "if_id_if.vh"
 `include "types_pkg.vh"
 
-import types_pkg::*;
-
 module if_id (
   input logic CLK, nRST,
   if_id_if.fd fdif

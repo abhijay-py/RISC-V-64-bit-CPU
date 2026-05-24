@@ -1,8 +1,6 @@
 `include "mem_wb_if.vh"
 `include "types_pkg.vh"
 
-import types_pkg::*;
-
 module mem_wb (
   input logic CLK, nRST,
   mem_wb_if.mw mwif

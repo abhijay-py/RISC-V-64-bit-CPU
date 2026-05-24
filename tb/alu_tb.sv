@@ -8,8 +8,7 @@ module alu_tb;
 
     always #(PERIOD/2) CLK++;
     alu_if aluif ();
-    alu DUT (.port_a(aluif.port_a), .port_b(aluif.port_b), .alu_out(aluif.alu_out),
-             .zero(aluif.zero), .ALUOp(aluif.ALUOp));
+    alu DUT (.aluif(aluif));
 
     test tb (.CLK(CLK), .tbif(aluif));
 

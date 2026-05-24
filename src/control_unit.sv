@@ -1,11 +1,11 @@
 `include "control_unit_if.vh"
 `include "types_pkg.vh"
 
-import types_pkg::*;
 //TODO: update diagram with funct12
 module control_unit (
   control_unit_if.cu cuif
 );
+    import types_pkg::*;
     logic decode_error; //Decode Error Flag (will decide what to do later)
 
     funct3_fence_t funct3_fence;
