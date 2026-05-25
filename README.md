@@ -6,9 +6,10 @@ Some future ideas being considered to be implemented after implementing the afor
 ## Dependencies
 
 - [Verilator](https://verilator.org) (5.0+)
-- [GTKWave](https://gtkwave.sourceforge.net) (waveform viewer, optional)
 - CMake 3.20+
 - g++ with C++20 coroutine support
+- [GTKWave](https://gtkwave.sourceforge.net) (waveform viewer, optional)
+- `genhtml` from the `lcov` package (HTML coverage reports, optional)
 
 ## Building
 
@@ -36,6 +37,12 @@ cmake --build build --target wave_registers
 ```
 
 Logs (`sim.log`, `coverage.log`) and waveforms (`<module>.vcd`) are written to the build directory. GTKWave save files go in `gtkw/<module>.gtkw` in the project root.
+
+Coverage output depends on whether `genhtml` is installed:
+- **With `genhtml`** — HTML report at `build/coverage_html/index.html`
+- **Without `genhtml`** — annotated source files at `build/coverage_annotated/`
+
+In both cases a summary percentage is printed to the log.
 
 ## Adding a New Module
 

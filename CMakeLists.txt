@@ -10,6 +10,7 @@ endif()
 find_program(VERILATOR          verilator          REQUIRED)
 find_program(VERILATOR_COVERAGE verilator_coverage REQUIRED)
 find_program(GTKWAVE            gtkwave)
+find_program(GENHTML            genhtml)
 
 set(SRC_DIR  ${CMAKE_SOURCE_DIR}/src)
 set(INC_DIR  ${CMAKE_SOURCE_DIR}/inc)
@@ -70,6 +71,7 @@ function(add_module_targets MOD TB_FILE)
     # -- sim ----------------------------------------------------------------
     add_custom_target(sim_${MOD}
         COMMAND ${CMAKE_COMMAND} -E make_directory ${MOD_OUT}
+        COMMAND ${CMAKE_COMMAND} -E touch ${SIM_LOG}
         COMMAND sh -c "${VERILATOR} ${VLT_FLAGS_STR} --trace ${SRC_FILE} ${DEP_SRCS_STR} ${TB_FILE} --top ${MOD}_tb --Mdir ${MOD_OUT} -o ${MOD}_sim 2>&1 | tee ${SIM_LOG}"
         COMMAND sh -c "${MOD_OUT}/${MOD}_sim${EXE_EXT} 2>&1 | tee -a ${SIM_LOG}"
         COMMAND ${CMAKE_COMMAND} -E rename
@@ -77,16 +79,34 @@ function(add_module_targets MOD TB_FILE)
                 ${CMAKE_BINARY_DIR}/${MOD}.vcd
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMENT "[sim] ${MOD}"
+        VERBATIM
     )
 
     # -- coverage -----------------------------------------------------------
+    set(EXTRA_COV_CMDS)
+    if(GENHTML)
+        list(APPEND EXTRA_COV_CMDS
+            COMMAND sh -c "${VERILATOR_COVERAGE} --write-info ${CMAKE_BINARY_DIR}/coverage.info ${CMAKE_BINARY_DIR}/coverage.dat 2>&1 | tee -a ${COV_LOG}"
+            COMMAND sh -c "${GENHTML} ${CMAKE_BINARY_DIR}/coverage.info --output-directory ${CMAKE_BINARY_DIR}/coverage_html 2>&1 | tee -a ${COV_LOG}"
+            COMMAND ${CMAKE_COMMAND} -E echo "[coverage] HTML report: ${CMAKE_BINARY_DIR}/coverage_html/index.html"
+        )
+    else()
+        list(APPEND EXTRA_COV_CMDS
+            COMMAND sh -c "${VERILATOR_COVERAGE} --annotate ${CMAKE_BINARY_DIR}/coverage_annotated ${CMAKE_BINARY_DIR}/coverage.dat 2>&1 | tee -a ${COV_LOG}"
+            COMMAND ${CMAKE_COMMAND} -E echo "[coverage] Annotated source: ${CMAKE_BINARY_DIR}/coverage_annotated/"
+        )
+    endif()
+
     add_custom_target(coverage_${MOD}
         COMMAND ${CMAKE_COMMAND} -E make_directory ${MOD_OUT}
+        COMMAND ${CMAKE_COMMAND} -E touch ${COV_LOG}
         COMMAND sh -c "${VERILATOR} ${VLT_FLAGS_STR} --coverage ${SRC_FILE} ${DEP_SRCS_STR} ${TB_FILE} --top ${MOD}_tb --Mdir ${MOD_OUT} -o ${MOD}_cov 2>&1 | tee ${COV_LOG}"
         COMMAND sh -c "${MOD_OUT}/${MOD}_cov${EXE_EXT} 2>&1 | tee -a ${COV_LOG}"
         COMMAND sh -c "${VERILATOR_COVERAGE} ${CMAKE_BINARY_DIR}/coverage.dat 2>&1 | tee -a ${COV_LOG}"
+        ${EXTRA_COV_CMDS}
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMENT "[coverage] ${MOD}"
+        VERBATIM
     )
 
     # -- wave ---------------------------------------------------------------
@@ -125,6 +145,9 @@ set(EXTRA_CLEAN_FILES
     ${CMAKE_BINARY_DIR}/sim.log
     ${CMAKE_BINARY_DIR}/coverage.log
     ${CMAKE_BINARY_DIR}/coverage.dat
+    ${CMAKE_BINARY_DIR}/coverage.info
+    ${CMAKE_BINARY_DIR}/coverage_html
+    ${CMAKE_BINARY_DIR}/coverage_annotated
     ${CMAKE_BINARY_DIR}/out
 )
 foreach(MOD IN LISTS DISCOVERED_MODS)
@@ -150,9 +173,11 @@ add_custom_target(help_vlt
     COMMAND ${CMAKE_COMMAND} -E echo "  src/<module>.sv and all .vh files are always included automatically."
     COMMAND ${CMAKE_COMMAND} -E echo ""
     COMMAND ${CMAKE_COMMAND} -E echo "Output (all under <build_dir>/):"
-    COMMAND ${CMAKE_COMMAND} -E echo "  sim.log / coverage.log   simulation and coverage logs"
-    COMMAND ${CMAKE_COMMAND} -E echo "  <module>.vcd             waveform for GTKWave"
-    COMMAND ${CMAKE_COMMAND} -E echo "  out/<module>/            verilator obj + binary"
+    COMMAND ${CMAKE_COMMAND} -E echo "  sim.log / coverage.log        simulation and coverage logs"
+    COMMAND ${CMAKE_COMMAND} -E echo "  <module>.vcd                  waveform for GTKWave"
+    COMMAND ${CMAKE_COMMAND} -E echo "  out/<module>/                 verilator obj + binary"
+    COMMAND ${CMAKE_COMMAND} -E echo "  coverage_html/index.html      HTML coverage report (requires genhtml)"
+    COMMAND ${CMAKE_COMMAND} -E echo "  coverage_annotated/           annotated source (fallback, no genhtml)"
     COMMAND ${CMAKE_COMMAND} -E echo ""
     COMMAND ${CMAKE_COMMAND} -E echo "Discovered modules: ${MODS_PRETTY}"
     COMMAND ${CMAKE_COMMAND} -E echo ""
