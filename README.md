@@ -6,10 +6,10 @@ Some future ideas being considered to be implemented after implementing the afor
 ## Dependencies
 
 - [Verilator](https://verilator.org) (5.0+)
-- CMake 3.20+
-- g++ with C++20 coroutine support
 - [GTKWave](https://gtkwave.sourceforge.net) (waveform viewer, optional)
 - `genhtml` from the `lcov` package (HTML coverage reports, optional)
+- CMake 3.20+
+- g++ with C++20 coroutine support
 
 ## Building
 
