@@ -11,7 +11,7 @@ module registers (
     always_comb begin
         rif.rdata1 = register_data[rif.rs1];
         rif.rdata2 = register_data[rif.rs2];
-        if (rif.RegWrite && rif.rd != 0) begin
+        if (rif.RegWrite && rif.rd != 0 && nRST) begin
             if (rif.rd == rif.rs1) begin
                 rif.rdata1 = rif.wdata;
             end
