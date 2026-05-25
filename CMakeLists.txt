@@ -83,17 +83,15 @@ function(add_module_targets MOD TB_FILE)
     )
 
     # -- coverage -----------------------------------------------------------
-    set(EXTRA_COV_CMDS)
+    set(EXTRA_COV_CMDS
+        COMMAND sh -c "${VERILATOR_COVERAGE} --annotate ${CMAKE_BINARY_DIR}/coverage_annotated ${CMAKE_BINARY_DIR}/coverage.dat 2>&1 | tee -a ${COV_LOG}"
+        COMMAND ${CMAKE_COMMAND} -E echo "[coverage] Annotated source: ${CMAKE_BINARY_DIR}/coverage_annotated/"
+    )
     if(GENHTML)
         list(APPEND EXTRA_COV_CMDS
             COMMAND sh -c "${VERILATOR_COVERAGE} --write-info ${CMAKE_BINARY_DIR}/coverage.info ${CMAKE_BINARY_DIR}/coverage.dat 2>&1 | tee -a ${COV_LOG}"
             COMMAND sh -c "${GENHTML} ${CMAKE_BINARY_DIR}/coverage.info --output-directory ${CMAKE_BINARY_DIR}/coverage_html 2>&1 | tee -a ${COV_LOG}"
-            COMMAND ${CMAKE_COMMAND} -E echo "[coverage] HTML report: ${CMAKE_BINARY_DIR}/coverage_html/index.html"
-        )
-    else()
-        list(APPEND EXTRA_COV_CMDS
-            COMMAND sh -c "${VERILATOR_COVERAGE} --annotate ${CMAKE_BINARY_DIR}/coverage_annotated ${CMAKE_BINARY_DIR}/coverage.dat 2>&1 | tee -a ${COV_LOG}"
-            COMMAND ${CMAKE_COMMAND} -E echo "[coverage] Annotated source: ${CMAKE_BINARY_DIR}/coverage_annotated/"
+            COMMAND ${CMAKE_COMMAND} -E echo "[coverage] HTML report (line coverage only): ${CMAKE_BINARY_DIR}/coverage_html/index.html"
         )
     endif()
 
@@ -176,8 +174,8 @@ add_custom_target(help_vlt
     COMMAND ${CMAKE_COMMAND} -E echo "  sim.log / coverage.log        simulation and coverage logs"
     COMMAND ${CMAKE_COMMAND} -E echo "  <module>.vcd                  waveform for GTKWave"
     COMMAND ${CMAKE_COMMAND} -E echo "  out/<module>/                 verilator obj + binary"
-    COMMAND ${CMAKE_COMMAND} -E echo "  coverage_html/index.html      HTML coverage report (requires genhtml)"
-    COMMAND ${CMAKE_COMMAND} -E echo "  coverage_annotated/           annotated source (fallback, no genhtml)"
+    COMMAND ${CMAKE_COMMAND} -E echo "  coverage_annotated/           annotated source (line + toggle + branch coverage)"
+    COMMAND ${CMAKE_COMMAND} -E echo "  coverage_html/index.html      HTML report, line coverage only (requires genhtml)"
     COMMAND ${CMAKE_COMMAND} -E echo ""
     COMMAND ${CMAKE_COMMAND} -E echo "Discovered modules: ${MODS_PRETTY}"
     COMMAND ${CMAKE_COMMAND} -E echo ""

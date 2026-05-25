@@ -38,11 +38,9 @@ cmake --build build --target wave_registers
 
 Logs (`sim.log`, `coverage.log`) and waveforms (`<module>.vcd`) are written to the build directory. GTKWave save files go in `gtkw/<module>.gtkw` in the project root.
 
-Coverage output depends on whether `genhtml` is installed:
-- **With `genhtml`** — HTML report at `build/coverage_html/index.html`
-- **Without `genhtml`** — annotated source files at `build/coverage_annotated/`
+Coverage always produces annotated source files at `build/coverage_annotated/` (includes line, toggle, and branch counts). If `genhtml` is installed, an HTML report is also written to `build/coverage_html/index.html` — note that the HTML report shows **line coverage only**.
 
-In both cases a summary percentage is printed to the log.
+A summary percentage is printed to the log in both cases.
 
 ## Adding a New Module
 
