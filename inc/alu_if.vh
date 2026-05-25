@@ -16,11 +16,6 @@ interface alu_if;
         output alu_out, zero
     );
 
-    //Testbench ports
-    modport tb (
-        input alu_out, zero,
-        output port_a, port_b, ALUOp
-    );
 
 endinterface
 

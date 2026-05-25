@@ -28,13 +28,6 @@ interface exe_mem_if;
         
     );
 
-    //Testbench ports
-    modport tb (
-        input   pred_taken_mem, RegWrite_mem, halt_mem, MemToReg_mem, MemRead_mem, jump_mem, branch_mem, zero_mem, prev_ghr_mem,
-        input   pc_mem, jumpaddr_mem, rd_mem,rdata2_mem, aluout_mem, MemData_mem, funct3_mem, imm_mem,
-        output  flush, freeze, ihit, pred_taken_exe, RegWrite_exe, halt_exe, MemToReg_exe, MemRead_exe, MemWrite_exe, jump_exe, branch_exe, zero_exe, prev_ghr_exe,
-        output  pc_exe, jumpaddr_exe, rd_exe, rdata2_exe, aluout_exe, MemData_exe, funct3_exe, imm_exe
-    );
 
 endinterface
 `endif 

@@ -1,29 +1,23 @@
 `include "alu_if.vh"
 
-parameter PERIOD = 10;
-
 module alu_tb;
+    import types_pkg::*;
 
-    logic CLK = 0;
-
-    always #(PERIOD/2) CLK++;
     alu_if aluif ();
     alu DUT (.aluif(aluif));
 
-    test tb (.CLK(CLK), .tbif(aluif));
+    dword_t aluout;
+    assign aluout = aluif.alu_out;
 
-endmodule
-
-program test (
-    input logic CLK,
-    alu_if.tb tbif
-);
-    import types_pkg::*;
+    assert property (@(aluif.alu_out) (aluif.alu_out == '0) |-> (aluif.zero == 1))
+    else $error("zero flag mismatch: alu_out = %x, zero = %b", aluif.alu_out, aluif.zero);
 
     initial begin
-        $monitor("CLK = %b, zero = %b, aluout = %x", CLK, tbif.zero, tbif.aluout);
+        $dumpfile("dump.vcd");
+        $dumpvars(0, alu_tb);
+        $monitor("zero = %b, aluout = %x", aluif.zero, aluout);
         //TODO: write test cases
         $finish;
     end
 
-endprogram
+endmodule

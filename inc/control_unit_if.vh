@@ -22,11 +22,6 @@ interface control_unit_if;
         output ALUOp, MemData, ImmType, lui, immSel, auipc, jalr, jump, branch, MemToReg, MemRead, MemWrite, halt, RegWrite
     );
 
-    //Testbench ports
-    modport tb (
-        input ALUOp, MemData, ImmType, lui, immSel, auipc, jalr, jump, branch, MemToReg, MemRead, MemWrite, halt, RegWrite,
-        output funct3, funct7, funct12, opcode
-    );
 
 endinterface
 

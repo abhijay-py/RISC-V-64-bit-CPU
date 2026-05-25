@@ -19,11 +19,6 @@ interface if_id_if;
         output instr_id, pred_taken_id, pc_id, prev_ghr_id
     );
 
-    //Testbench ports
-    modport tb (
-        input instr_id, pred_taken_id, pc_id, prev_ghr_id,
-        output if_instr, if_pred_taken, flush, freeze, ihit, if_pc, if_prev_ghr
-    );
 
 endinterface
 `endif 

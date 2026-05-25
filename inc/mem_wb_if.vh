@@ -18,11 +18,6 @@ interface mem_wb_if;
         output RegWrite_wb, MemToReg_wb, rd_wb, dmemdata_wb, aluout_wb
     );
 
-    //Testbench ports
-    modport tb (  
-        input  RegWrite_wb, MemToReg_wb, rd_wb, dmemdata_wb, aluout_wb,
-        output  ihit, RegWrite_mem, MemToReg_mem, rd_mem, dmemdata_mem, aluout_mem
-    );
 
 endinterface
 `endif 

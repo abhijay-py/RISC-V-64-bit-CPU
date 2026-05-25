@@ -15,11 +15,6 @@ interface hazard_unit_if;
         output flush, freeze
     );
 
-    //Testbench ports
-    modport tb (
-        input flush, freeze,
-        output dmemReady, ihit, pred_taken, jump_taken, rs1_de, rs2_de, rd_em, MemRead_em
-    );
 
 endinterface
 `endif 

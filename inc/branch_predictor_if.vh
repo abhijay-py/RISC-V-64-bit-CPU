@@ -16,11 +16,6 @@ interface branch_predictor_if;
         output target, pred_taken, prev_ghr
     );
 
-    //Testbench ports
-    modport tb (
-        input target, pred_taken, prev_ghr,
-        output pc, old_next_pc, old_pc, old_jump_taken, old_pred_taken, old_branch, old_jump, old_ghr
-    );
 
 endinterface
 

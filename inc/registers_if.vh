@@ -16,11 +16,6 @@ interface registers_if;
         output rdata1, rdata2
     );
 
-    //Testbench ports
-    modport tb (
-        input rdata1, rdata2,
-        output rs1, rs2, rd, wdata, RegWrite
-    );
 
 endinterface
 

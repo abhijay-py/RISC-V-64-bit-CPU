@@ -40,10 +40,10 @@ module registers_tb;
         nRST = 1;
         #1
         nRST = 0;
-
+        #(PERIOD)
         nRST = 1;
         for (int i = 0; i < 32; i++) begin
-            rif.rs1 = i;
+            rif.rs1 = reg_t'(i);
             #1;
             assert (rif.rdata1 == '0)
             else $error("Initial nRST Test (r%d): got %h, expected %h", i, rif.rdata1, 0);
@@ -53,11 +53,11 @@ module registers_tb;
         nRST = 1;
         for (int i = 0; i < 32; i++) begin
             rif.RegWrite = 1;
-            rif.rd = i;
+            rif.rd = reg_t'(i);
             rif.wdata = '1;
             #(PERIOD)
             rif.RegWrite = 0;
-            rif.rs1 = i;
+            rif.rs1 = reg_t'(i);
             #1;
             if (i != 0) begin
                 assert (rif.rdata1 == '1)
@@ -72,8 +72,8 @@ module registers_tb;
         rif.wdata = 64'hFA;
         nRST = 0;
         #1;
-        assert (rif.rdata1 == 64'hFA)
-        else $error("Forwarding during nRST: got %h, expected %h", rif.rdata1, 64'hFA);
+        assert (rif.rdata1 == '0)
+        else $error("Forwarding during nRST: got %h, expected %h", rif.rdata1, 64'h0);
         #(PERIOD)
         rif.RegWrite = 0;
         #1
@@ -118,6 +118,32 @@ module registers_tb;
         else $error("Forwarding Write Test (rs1): got %h, expected %h", rif.rdata1, 64'h0);
         assert (rif.rdata2 == '0)
         else $error("Forwarding Write Test (rs2): got %h, expected %h", rif.rdata2, 64'h0);
+        #(PERIOD)
+
+        nRST = 1;
+        rif.RegWrite = 1;
+        rif.rd = 5'd1;
+        rif.rs1 = 5'd1;
+        rif.rs2 = 5'd3;
+        rif.wdata = 64'hAB;
+        #1;
+        assert (rif.rdata1 == 64'hAB)
+        else $error("Forwarding Write Test (rs1): got %h, expected %h", rif.rdata1, 64'hAB);
+        assert (rif.rdata2 == '0)
+        else $error("Forwarding Write Test (rs2 no-fwd): got %h, expected %h", rif.rdata2, 64'h0);
+        #(PERIOD)
+
+        nRST = 1;
+        rif.RegWrite = 1;
+        rif.rd = 5'd2;
+        rif.rs1 = 5'd3;
+        rif.rs2 = 5'd2;
+        rif.wdata = 64'hAB;
+        #1;
+        assert (rif.rdata1 == '0)
+        else $error("Forwarding Write Test (rs1 no-fwd): got %h, expected %h", rif.rdata1, 64'h0);
+        assert (rif.rdata2 == 64'hAB)
+        else $error("Forwarding Write Test (rs2): got %h, expected %h", rif.rdata2, 64'hAB);
         #(PERIOD)
         $finish;
     end

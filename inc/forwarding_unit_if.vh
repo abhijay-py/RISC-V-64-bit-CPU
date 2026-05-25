@@ -16,10 +16,6 @@ interface forwarding_unit_if;
         output forward_one, forward_two, forward_jalr
     );
 
-    modport tb (
-        input forward_one, forward_two, forward_jalr,
-        output rs1_de, rs2_de, rd_mw, rd_em, RegWrite_em, RegWrite_mw, MemRead_em, opcode_de
-    );
 
 endinterface
 `endif 
