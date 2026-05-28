@@ -7,12 +7,12 @@ interface alu_if;
     import types_pkg::*;
 
     dword_t port_a, port_b, alu_out;
-    aluop_t ALUOp;
+    aluop_t alu_op;
     logic zero;
 
     //ALU ports
     modport alu (
-        input port_a, port_b, ALUOp,
+        input port_a, port_b, alu_op,
         output alu_out, zero
     );
 

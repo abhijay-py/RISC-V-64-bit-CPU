@@ -13,7 +13,7 @@ module alu (
         aluif.alu_out = '0;
         result = '0;
 
-        case (aluif.ALUOp)
+        case (aluif.alu_op)
             ALU_ADD:  aluif.alu_out = aluif.port_a + aluif.port_b;
             ALU_SUB:  aluif.alu_out = aluif.port_a - aluif.port_b;
             ALU_AND:  aluif.alu_out = aluif.port_a & aluif.port_b;

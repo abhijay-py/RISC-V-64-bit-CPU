@@ -41,6 +41,8 @@ package types_pkg;
     parameter L2_BYTE_OFFSET_W = 3;
     parameter L2_TAG_W = CACHE_ADDR_W - L2_IDX_W - L2_BLK_OFFSET_W - L2_BYTE_OFFSET_W;
 
+    parameter RAM_BLOCK_W = (1 << L2_BLK_OFFSET_W);
+
     //Branch Prediction sizes
     parameter GHR_W = 12;
     parameter PHT_ENTRIES = 1 << GHR_W;
@@ -58,6 +60,7 @@ package types_pkg;
     typedef logic [DWORD_W-1:0] dword_t;
     typedef logic [REG_W-1:0] reg_t;
     typedef logic [ADDR_W-1:0] addr_t;
+    typedef dword_t [RAM_BLOCK_W-1:0] ram_block_t;
 
 
     //Opcode Types
@@ -171,7 +174,7 @@ package types_pkg;
     } btb_frame;
 
 
-    //ALUOp Bits
+    //Alu Op Bits
     typedef enum logic [ALUOP_W-1:0] {
         ALU_ADD     = 4'b0000,
         ALU_SUB     = 4'b0001,
@@ -190,7 +193,7 @@ package types_pkg;
         ALU_SRAW    = 4'b1110
     } aluop_t;
 
-    //MEMOp Bits
+    //Mem Op Bits
     typedef enum logic [MEMDATA_W-1:0] {
         MEM_BYTE    = 3'b000,
         MEM_BYTE_U  = 3'b001,
@@ -201,7 +204,7 @@ package types_pkg;
         MEM_DWORD   = 3'b110
     } memdata_t;
 
-    //ImmType Bits
+    //Imm Type Bits
     typedef enum logic [IMMTYPE_W-1:0] {
         IMM_ITYPE   = 3'b000,
         IMM_UTYPE   = 3'b001,

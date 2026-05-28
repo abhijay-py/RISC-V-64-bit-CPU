@@ -8,11 +8,11 @@ interface registers_if;
 
     reg_t rs1, rs2, rd;
     dword_t wdata, rdata1, rdata2;
-    logic RegWrite;
+    logic reg_write;
 
     //Registers ports
     modport regs (
-        input rs1, rs2, rd, wdata, RegWrite,
+        input rs1, rs2, rd, wdata, reg_write,
         output rdata1, rdata2
     );
 

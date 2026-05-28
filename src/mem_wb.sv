@@ -2,23 +2,23 @@
 `include "types_pkg.vh"
 
 module mem_wb (
-  input logic CLK, nRST,
+  input logic CLK, n_rst,
   mem_wb_if.mw mwif
 );
-  always_ff @(posedge CLK, negedge nRST) begin
-    if (!nRST) begin
-      mwif.RegWrite_wb <= 0;
-      mwif.MemToReg_wb <= 0;
+  always_ff @(posedge CLK, negedge n_rst) begin
+    if (!n_rst) begin
+      mwif.reg_write_wb <= 0;
+      mwif.mem_to_reg_wb <= 0;
       mwif.rd_wb <= '0;
-      mwif.dmemdata_wb <= '0;
-      mwif.aluout_wb <= '0;
+      mwif.dmem_data_wb <= '0;
+      mwif.alu_out_wb <= '0;
     end
     else if (mwif.ihit) begin
-      mwif.RegWrite_wb <= mwif.RegWrite_mem;
-      mwif.MemToReg_wb <= mwif.MemToReg_mem;
+      mwif.reg_write_wb <= mwif.reg_write_mem;
+      mwif.mem_to_reg_wb <= mwif.mem_to_reg_mem;
       mwif.rd_wb <= mwif.rd_mem;
-      mwif.dmemdata_wb <= mwif.dmemdata_mem;
-      mwif.aluout_wb <= mwif.aluout_mem;
+      mwif.dmem_data_wb <= mwif.dmem_data_mem;
+      mwif.alu_out_wb <= mwif.alu_out_mem;
     end
   end
 endmodule

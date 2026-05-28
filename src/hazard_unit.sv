@@ -12,7 +12,7 @@ module hazard_unit (
     if (huif.jump_taken != huif.pred_taken) begin
       huif.flush = 1;
     end 
-    if (huif.MemRead_em && !huif.dmemReady && !huif.ihit) begin
+    if (huif.mem_read_em && !huif.dmem_ready && !huif.ihit) begin
       if ((huif.rd_em == huif.rs1_de || huif.rd_em == huif.rs2_de) && huif.rd_em != '0) begin
         huif.freeze = 1;
       end

@@ -4,7 +4,7 @@
 
 //TODO: Update diagram + iron out timing decisions
 module branch_predictor (
-  input logic CLK, nRST,
+  input logic CLK, n_rst,
   branch_predictor_if.bp bpif
 );
     import types_pkg::*;
@@ -30,8 +30,8 @@ module branch_predictor (
 
     assign pht_index = bpif.pc[GHR_W+1:2] ^ ghr; //ignoring bottom bits as instrs are often byte aligned. (CHANGE if adding compressed instrs)
 
-    always_ff @ (posedge CLK, negedge nRST) begin
-        if (!nRST) begin
+    always_ff @ (posedge CLK, negedge n_rst) begin
+        if (!n_rst) begin
             ghr <= '0;
             bpif.prev_ghr <= '0;
             btb_zero <= '{default: '0};

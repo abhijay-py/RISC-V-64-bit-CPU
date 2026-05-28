@@ -6,18 +6,18 @@
 interface mem_wb_if;
     import types_pkg::*;
 
-    logic ihit; 
+    logic ihit;
 
-    logic RegWrite_mem, MemToReg_mem, RegWrite_wb, MemToReg_wb;
+    logic reg_write_mem, mem_to_reg_mem, reg_write_wb, mem_to_reg_wb;
     reg_t rd_mem, rd_wb;
-    dword_t dmemdata_mem, aluout_mem, dmemdata_wb, aluout_wb;
+    dword_t dmem_data_mem, alu_out_mem, dmem_data_wb, alu_out_wb;
 
     //MEM_WB Latch ports
     modport mw (
-        input  ihit, RegWrite_mem, MemToReg_mem, rd_mem, dmemdata_mem, aluout_mem,
-        output RegWrite_wb, MemToReg_wb, rd_wb, dmemdata_wb, aluout_wb
+        input  ihit, reg_write_mem, mem_to_reg_mem, rd_mem, dmem_data_mem, alu_out_mem,
+        output reg_write_wb, mem_to_reg_wb, rd_wb, dmem_data_wb, alu_out_wb
     );
 
 
 endinterface
-`endif 
+`endif

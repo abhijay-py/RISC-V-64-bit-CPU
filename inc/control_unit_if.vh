@@ -10,22 +10,22 @@ interface control_unit_if;
     logic [11:0] funct12;
     opcode_t opcode;
 
-    aluop_t ALUOp;
-    memdata_t MemData;
-    immtype_t ImmType;
-    logic lui, immSel, auipc, jalr, jump, branch, MemToReg, MemRead, MemWrite, halt, RegWrite;
+    aluop_t alu_op;
+    memdata_t mem_data;
+    immtype_t imm_type;
+    logic lui, imm_sel, auipc, jalr, jump, branch, mem_to_reg, mem_read, mem_write, halt, reg_write;
 
 
     //Control Unit ports
     modport cu (
         input funct3, funct7, funct12, opcode,
-        output ALUOp, MemData, ImmType, lui, immSel, auipc, jalr, jump, branch, MemToReg, MemRead, MemWrite, halt, RegWrite
+        output alu_op, mem_data, imm_type, lui, imm_sel, auipc, jalr, jump, branch, mem_to_reg, mem_read, mem_write, halt, reg_write
     );
 
 
 endinterface
 
-`endif 
+`endif
 
 
 

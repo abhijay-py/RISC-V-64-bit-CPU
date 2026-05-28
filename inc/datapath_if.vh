@@ -9,23 +9,23 @@ interface datapath_if;
     addr_t daddr, iaddr;
     word_t iload;
     dword_t dload, dstore;
-    memdata_t dMemData;
-    logic halt, ihit, dhit, iREN, dREN, dWEN;
+    memdata_t d_mem_data;
+    logic halt, ihit, dhit, i_ren, d_ren, d_wen;
 
     modport dp (
         input ihit, dhit, iload, dload,
-        output halt, iaddr, daddr, iREN, dREN, dWEN, dMemData, dstore
+        output halt, iaddr, daddr, i_ren, d_ren, d_wen, d_mem_data, dstore
     );
 
     modport icache (
-        input iREN, iaddr,
+        input i_ren, iaddr,
         output iload, ihit
     );
 
     modport dcache (
-        input dREN, dWEN, dMemData, daddr, dstore, 
+        input d_ren, d_wen, d_mem_data, daddr, dstore,
         output dload, dhit
     );
 
 endinterface
-`endif 
+`endif

@@ -25,119 +25,119 @@ module control_unit (
     assign funct12_env = funct12_env_t'(cuif.funct12);
 
     always_comb begin
-        cuif.ALUOp = ALU_ADD;
-        cuif.MemData = MEM_WORD;
-        cuif.ImmType = IMM_ITYPE;
+        cuif.alu_op = ALU_ADD;
+        cuif.mem_data = MEM_WORD;
+        cuif.imm_type = IMM_ITYPE;
         cuif.lui = 0;
-        cuif.immSel = 0;
+        cuif.imm_sel = 0;
         cuif.auipc = 0;
         cuif.jalr = 0;
         cuif.jump = 0;
         cuif.branch = 0;
-        cuif.MemToReg = 0;
-        cuif.MemRead = 0;
-        cuif.MemWrite = 0;
+        cuif.mem_to_reg = 0;
+        cuif.mem_read = 0;
+        cuif.mem_write = 0;
         cuif.halt = 0;
         decode_error = 0;
-        cuif.RegWrite = 1;
+        cuif.reg_write = 1;
         
         case (cuif.opcode) 
             R_TYPE, I_TYPE: begin
-                cuif.immSel = cuif.opcode == I_TYPE ? 1 : 0;
+                cuif.imm_sel = cuif.opcode == I_TYPE ? 1 : 0;
                 if (funct3_ri == SLL || funct3_ri == SRA_SRL) begin
-                    cuif.ImmType = IMM_SHIFT;
+                    cuif.imm_type = IMM_SHIFT;
                 end
 
                 case (funct3_ri)
-                    ADD_SUB: cuif.ALUOp = (cuif.opcode != I_TYPE && funct7_r == SUB) ? ALU_SUB : ALU_ADD;
-                    AND: cuif.ALUOp = ALU_AND;
-                    OR: cuif.ALUOp = ALU_OR;
-                    XOR: cuif.ALUOp = ALU_XOR;
-                    SLL: cuif.ALUOp = ALU_SLL;
-                    SLT: cuif.ALUOp = ALU_SLT;
-                    SLTU: cuif.ALUOp = ALU_SLTU;
-                    SRA_SRL: cuif.ALUOp = funct7_sr == SRA ? ALU_SRA : ALU_SRL;
+                    ADD_SUB: cuif.alu_op = (cuif.opcode != I_TYPE && funct7_r == SUB) ? ALU_SUB : ALU_ADD;
+                    AND: cuif.alu_op = ALU_AND;
+                    OR: cuif.alu_op = ALU_OR;
+                    XOR: cuif.alu_op = ALU_XOR;
+                    SLL: cuif.alu_op = ALU_SLL;
+                    SLT: cuif.alu_op = ALU_SLT;
+                    SLTU: cuif.alu_op = ALU_SLTU;
+                    SRA_SRL: cuif.alu_op = funct7_sr == SRA ? ALU_SRA : ALU_SRL;
                     default: decode_error = 1;
                 endcase
             end
             RW_TYPE, IW_TYPE: begin
-                cuif.immSel = cuif.opcode == IW_TYPE ? 1 : 0;
+                cuif.imm_sel = cuif.opcode == IW_TYPE ? 1 : 0;
                 if (funct3_ri == SLL || funct3_ri == SRA_SRL) begin
-                    cuif.ImmType = IMM_SHIFTW;
+                    cuif.imm_type = IMM_SHIFTW;
                 end
 
                 case (funct3_ri)
-                    ADD_SUB: cuif.ALUOp = (cuif.opcode != IW_TYPE && funct7_r == SUB) ? ALU_SUBW : ALU_ADDW;
-                    SLL: cuif.ALUOp = ALU_SLLW;
-                    SRA_SRL: cuif.ALUOp = funct7_sr == SRA ? ALU_SRAW : ALU_SRLW;
+                    ADD_SUB: cuif.alu_op = (cuif.opcode != IW_TYPE && funct7_r == SUB) ? ALU_SUBW : ALU_ADDW;
+                    SLL: cuif.alu_op = ALU_SLLW;
+                    SRA_SRL: cuif.alu_op = funct7_sr == SRA ? ALU_SRAW : ALU_SRLW;
                     default: decode_error = 1;
                 endcase
             end
             LOAD, S_TYPE: begin
-                cuif.MemToReg = 1;
-                cuif.MemRead = 1;
-                cuif.immSel = 1;
+                cuif.mem_to_reg = 1;
+                cuif.mem_read = 1;
+                cuif.imm_sel = 1;
 
                 if (cuif.opcode == S_TYPE) begin
-                    cuif.MemToReg = 0;
-                    cuif.MemRead = 0;
-                    cuif.MemWrite = 1;
-                    cuif.RegWrite = 0;
-                    cuif.ImmType = IMM_STYPE;
+                    cuif.mem_to_reg = 0;
+                    cuif.mem_read = 0;
+                    cuif.mem_write = 1;
+                    cuif.reg_write = 0;
+                    cuif.imm_type = IMM_STYPE;
                     if (funct3_mem > D) begin
                         decode_error = 1;
                     end
                 end
 
                 case (funct3_mem) 
-                    B: cuif.MemData = MEM_BYTE;
-                    H: cuif.MemData = MEM_HWORD;
-                    W: cuif.MemData = MEM_WORD;
-                    D: cuif.MemData = MEM_DWORD;
-                    BU: cuif.MemData = MEM_BYTE_U;
-                    HU: cuif.MemData = MEM_HWORD_U;
-                    WU: cuif.MemData = MEM_WORD_U;
+                    B: cuif.mem_data = MEM_BYTE;
+                    H: cuif.mem_data = MEM_HWORD;
+                    W: cuif.mem_data = MEM_WORD;
+                    D: cuif.mem_data = MEM_DWORD;
+                    BU: cuif.mem_data = MEM_BYTE_U;
+                    HU: cuif.mem_data = MEM_HWORD_U;
+                    WU: cuif.mem_data = MEM_WORD_U;
                     default: decode_error = 1;
                 endcase
             end
             B_TYPE: begin
-                cuif.RegWrite = 0;
+                cuif.reg_write = 0;
                 cuif.branch = 1;
-                cuif.ImmType = IMM_BTYPE;
+                cuif.imm_type = IMM_BTYPE;
 
                 case (funct3_b) 
-                    BEQ, BNE: cuif.ALUOp = ALU_SUB;
-                    BLT, BGE: cuif.ALUOp = ALU_SLT;
-                    BLTU, BGEU: cuif.ALUOp = ALU_SLTU;
+                    BEQ, BNE: cuif.alu_op = ALU_SUB;
+                    BLT, BGE: cuif.alu_op = ALU_SLT;
+                    BLTU, BGEU: cuif.alu_op = ALU_SLTU;
                     default: decode_error = 1;
                 endcase
             end
             JAL: begin
-                cuif.ImmType = IMM_UJTYPE;
-                cuif.immSel = 1;
+                cuif.imm_type = IMM_UJTYPE;
+                cuif.imm_sel = 1;
                 cuif.jump = 1; 
             end
             JALR: begin
-                cuif.ImmType = IMM_IJTYPE;
-                cuif.immSel = 1;
+                cuif.imm_type = IMM_IJTYPE;
+                cuif.imm_sel = 1;
                 cuif.jump = 1;
                 cuif.jalr = 1;
             end
             LUI: begin
-                cuif.ImmType = IMM_UTYPE;
+                cuif.imm_type = IMM_UTYPE;
                 cuif.lui = 1;
-                cuif.immSel = 1;
+                cuif.imm_sel = 1;
             end
             AUIPC: begin
-                cuif.ImmType = IMM_UTYPE;
+                cuif.imm_type = IMM_UTYPE;
                 cuif.auipc = 1;
-                cuif.immSel = 1;
+                cuif.imm_sel = 1;
             end
             FENCE, ENV_CSR: begin //TODO: Temporarily NOOP (not officially in terms of instr) till a more complete CPU is made.
-                cuif.RegWrite = 0; //Prevents ops
+                cuif.reg_write = 0; //Prevents ops
             end
             HALT: begin
-                cuif.RegWrite = 0;
+                cuif.reg_write = 0;
                 cuif.halt = 1;
             end
             default: decode_error = 1;
