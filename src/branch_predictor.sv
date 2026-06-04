@@ -13,9 +13,10 @@ module branch_predictor (
 
     logic [GHR_W-1:0] ghr, next_ghr; // 12 bit ghr, could expand to 16 if area permits
 
-    logic        [GHR_W-1:0] pht_index, old_pht_index;
-    branchpred_t              pht [PHT_ENTRIES];
-    branchpred_t              next_pht_entry, pht_entry_check;
+    logic [GHR_W-1:0] pht_index, old_pht_index;
+
+    branchpred_t pht [PHT_ENTRIES];
+    branchpred_t next_pht_entry, pht_entry_check;
 
     logic    btb_entry_found, btb_jump_found;
     btb_pc_t pc_for_btb, oldpc_for_btb;
@@ -23,9 +24,10 @@ module branch_predictor (
     btb_frame [BTB_FRAME_ENTRIES-1:0] btb_zero, btb_one;
     logic     [BTB_FRAME_ENTRIES-1:0] lru;
 
-    logic     [BTB_IDX_W-1:0] btb_read_entry_idx, btb_write_entry_idx;
-    logic                      next_lru_write_entry, next_lru_read_entry;
-    btb_frame                  btbz_result, btbo_result, next_btbz_frame, next_btbo_frame;
+    logic [BTB_IDX_W-1:0] btb_read_entry_idx, btb_write_entry_idx;
+
+    logic     next_lru_write_entry, next_lru_read_entry;
+    btb_frame btbz_result, btbo_result, next_btbz_frame, next_btbo_frame;
 
     logic pht_en, btbz_en, btbo_en, lru_read_entry_en;
 
