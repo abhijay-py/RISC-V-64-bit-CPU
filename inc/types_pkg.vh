@@ -10,7 +10,7 @@ package types_pkg;
     parameter HWORD_W   = BYTE_W * 2;
     parameter WORD_W    = BYTE_W * 4;
     parameter DWORD_W   = BYTE_W * 8;
-    parameter ADDR_W = BYTE_W * 6; //More efficient addressing (used in x86)
+    parameter ADDR_W    = BYTE_W * 6; //More efficient addressing (used in x86)
 
     //Instr. Parameter sizes
     parameter OPCODE_W  = 7;
@@ -42,6 +42,7 @@ package types_pkg;
     parameter L2_TAG_W = CACHE_ADDR_W - L2_IDX_W - L2_BLK_OFFSET_W - L2_BYTE_OFFSET_W;
 
     parameter RAM_BLOCK_W = (1 << L2_BLK_OFFSET_W);
+    parameter RAM_BYTE_OFFSET_W = L2_BLK_OFFSET_W + L2_BYTE_OFFSET_W;
 
     //Branch Prediction sizes
     parameter GHR_W = 12;
@@ -69,10 +70,10 @@ package types_pkg;
         FENCE   = 7'b0001111,
         I_TYPE  = 7'b0010011,
         AUIPC   = 7'b0010111,
-        S_TYPE   = 7'b0100011,
+        S_TYPE  = 7'b0100011,
         R_TYPE  = 7'b0110011,
         LUI     = 7'b0110111,
-        B_TYPE = 7'b1100011,
+        B_TYPE  = 7'b1100011,
         JALR    = 7'b1100111,
         JAL     = 7'b1101111,
         ENV_CSR = 7'b1110011,
@@ -209,9 +210,9 @@ package types_pkg;
         IMM_ITYPE   = 3'b000,
         IMM_UTYPE   = 3'b001,
         IMM_STYPE   = 3'b010,
-        IMM_BTYPE  = 3'b011,
+        IMM_BTYPE   = 3'b011,
         IMM_UJTYPE  = 3'b100,
-        IMM_IJTYPE = 3'b101,
+        IMM_IJTYPE  = 3'b101,
         IMM_SHIFT   = 3'b110,
         IMM_SHIFTW  = 3'b111
     } immtype_t;
@@ -220,8 +221,8 @@ package types_pkg;
     typedef enum logic [PHT_W-1:0] {
         BP_SNT = 2'b00,
         BP_WNT = 2'b01,
-        BP_WT = 2'b10,
-        BP_ST = 2'b11
+        BP_WT  = 2'b10,
+        BP_ST  = 2'b11
     } branchpred_t;
 
 /* verilator lint_on UNUSEDPARAM */

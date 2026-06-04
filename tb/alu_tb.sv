@@ -53,7 +53,7 @@ module alu_tb;
         $display("\nALU ADD Overflow Tests:\n");
         
         aluif.port_a = '1;
-        aluif.port_b = 64'b1;
+        aluif.port_b = 64'd1;
         expected = '0;
         #1
         assert (aluif.alu_out == expected)
@@ -61,14 +61,21 @@ module alu_tb;
     
         aluif.port_a = '1;
         aluif.port_b = '1;
-        expected = {aluif.port_a[63:1], 1'b0};
+        expected = 64'hFFFF_FFFF_FFFF_FFFE;
         #1
         assert (aluif.alu_out == expected)
         else $error("ALU_ADD: %h + %h = %h, expected %h", aluif.port_a, aluif.port_b, aluif.alu_out, expected);
-    
-        aluif.port_a = 64'h7FFFFFFFFFFFFFFF;
+
+        aluif.port_a = 64'h7FFF_FFFF_FFFF_FFFF;
         aluif.port_b = 64'd1;
-        expected = {1'd1, 63'd0};
+        expected = 64'h8000_0000_0000_0000;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_ADD: %h + %h = %h, expected %h", aluif.port_a, aluif.port_b, aluif.alu_out, expected);
+
+        aluif.port_a = 64'h8000_0000_0000_0000;
+        aluif.port_b = 64'hFFFF_FFFF_FFFF_FFFF;
+        expected = 64'h7FFF_FFFF_FFFF_FFFF;
         #1
         assert (aluif.alu_out == expected)
         else $error("ALU_ADD: %h + %h = %h, expected %h", aluif.port_a, aluif.port_b, aluif.alu_out, expected);    
@@ -87,27 +94,27 @@ module alu_tb;
 
         //SUB overflow test cases
         $display("\nALU SUB Overflow Tests:\n");
-        
+
         aluif.port_a = '0;
-        aluif.port_b = 64'b1;
-        expected = '1;
-        #1
-        assert (aluif.alu_out == expected)
-        else $error("ALU_SUB: %h - %h = %h, expected %h", aluif.port_a, aluif.port_b, aluif.alu_out, expected);
-        
-        aluif.port_a = 64'd10;
-        aluif.port_b = 64'd11;
+        aluif.port_b = 64'd1;
         expected = '1;
         #1
         assert (aluif.alu_out == expected)
         else $error("ALU_SUB: %h - %h = %h, expected %h", aluif.port_a, aluif.port_b, aluif.alu_out, expected);
 
-        aluif.port_a = {1'd1, 63'd0};
-        aluif.port_b = 64'd1;
-        expected = 64'h7FFFFFFFFFFFFFFF;
+        aluif.port_a = 64'h7FFF_FFFF_FFFF_FFFF;
+        aluif.port_b = 64'hFFFF_FFFF_FFFF_FFFF;
+        expected = 64'h8000_0000_0000_0000;
         #1
         assert (aluif.alu_out == expected)
-        else $error("ALU_ADD: %h + %h = %h, expected %h", aluif.port_a, aluif.port_b, aluif.alu_out, expected);
+        else $error("ALU_SUB: %h - %h = %h, expected %h", aluif.port_a, aluif.port_b, aluif.alu_out, expected);
+
+        aluif.port_a = 64'h8000_0000_0000_0000;
+        aluif.port_b = 64'd1;
+        expected = 64'h7FFF_FFFF_FFFF_FFFF;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SUB: %h - %h = %h, expected %h", aluif.port_a, aluif.port_b, aluif.alu_out, expected);
 
         //AND test cases
         aluif.alu_op = ALU_AND;
@@ -181,7 +188,7 @@ module alu_tb;
         assert (aluif.alu_out == expected)
         else $error("ALU_SLL: %h << %h = %h, expected %h", aluif.port_a, aluif.port_b[5:0], aluif.alu_out, expected);
     
-        aluif.port_a = 64'b1;
+        aluif.port_a = 64'd1;
         aluif.port_b = 64'd63;
         expected = {1'b1, 63'd0};  
         #1
@@ -210,9 +217,9 @@ module alu_tb;
         assert (aluif.alu_out == expected)
         else $error("ALU_SRA: %h >>> %h = %h, expected %h", aluif.port_a, aluif.port_b[5:0], aluif.alu_out, expected);
         
-        aluif.port_a = 64'b1;
+        aluif.port_a = 64'd1;
         aluif.port_b = 64'b1000000;
-        expected = 64'b1;
+        expected = 64'd1;
         #1
         assert (aluif.alu_out == expected)
         else $error("ALU_SRA: %h >>> %h = %h, expected %h", aluif.port_a, aluif.port_b[5:0], aluif.alu_out, expected);
@@ -224,9 +231,9 @@ module alu_tb;
         assert (aluif.alu_out == expected)
         else $error("ALU_SRA: %h >>> %h = %h, expected %h", aluif.port_a, aluif.port_b[5:0], aluif.alu_out, expected);
         
-        aluif.port_a = 64'b1;
+        aluif.port_a = 64'd1;
         aluif.port_b = '0;
-        expected = 64'b1;
+        expected = 64'd1;
         #1
         assert (aluif.alu_out == expected)
         else $error("ALU_SRA: %h >>> %h = %h, expected %h", aluif.port_a, aluif.port_b[5:0], aluif.alu_out, expected);
@@ -240,7 +247,7 @@ module alu_tb;
         
         aluif.port_a = {1'd0, 1'd1, 62'd0};
         aluif.port_b = 64'd62;
-        expected = 64'b1;  
+        expected = 64'd1;  
         #1
         assert (aluif.alu_out == expected)
         else $error("ALU_SRA: %h >>> %h = %h, expected %h", aluif.port_a, aluif.port_b[5:0], aluif.alu_out, expected);        
@@ -262,14 +269,14 @@ module alu_tb;
         
         aluif.port_a = '1;
         aluif.port_b = '1;
-        expected = 1'b1;
+        expected = 64'd1;
         #1
         assert (aluif.alu_out == expected)
         else $error("ALU_SRL: %h >> %h = %h, expected %h", aluif.port_a, aluif.port_b[5:0], aluif.alu_out, expected);
                 
-        aluif.port_a = 64'b1;
+        aluif.port_a = 64'd1;
         aluif.port_b = 64'b1000000;
-        expected = 64'b1;
+        expected = 64'd1;
         #1
         assert (aluif.alu_out == expected)
         else $error("ALU_SRL: %h >> %h = %h, expected %h", aluif.port_a, aluif.port_b[5:0], aluif.alu_out, expected);
@@ -281,23 +288,23 @@ module alu_tb;
         assert (aluif.alu_out == expected)
         else $error("ALU_SRL: %h >> %h = %h, expected %h", aluif.port_a, aluif.port_b[5:0], aluif.alu_out, expected);
                 
-        aluif.port_a = 64'b1;
+        aluif.port_a = 64'd1;
         aluif.port_b = '0;
-        expected = 64'b1;
+        expected = 64'd1;
         #1
         assert (aluif.alu_out == expected)
         else $error("ALU_SRL: %h >> %h = %h, expected %h", aluif.port_a, aluif.port_b[5:0], aluif.alu_out, expected);
                 
         aluif.port_a = {1'd1, 63'd0};
         aluif.port_b = 64'd63;
-        expected = 1'b1;  
+        expected = 64'd1;  
         #1
         assert (aluif.alu_out == expected)
         else $error("ALU_SRL: %h >> %h = %h, expected %h", aluif.port_a, aluif.port_b[5:0], aluif.alu_out, expected);
                 
         aluif.port_a = {1'd0, 1'd1, 62'd0};
         aluif.port_b = 64'd62;
-        expected = 64'b1;  
+        expected = 64'd1;  
         #1
         assert (aluif.alu_out == expected)
         else $error("ALU_SRL: %h >> %h = %h, expected %h", aluif.port_a, aluif.port_b[5:0], aluif.alu_out, expected);
@@ -338,6 +345,13 @@ module alu_tb;
         assert (aluif.alu_out == expected)
         else $error("ALU_SLT: %h < %h = %h, expected %h", aluif.port_a, aluif.port_b, aluif.alu_out, expected);
 
+        aluif.port_a = 64'h7FFFFFFFFFFFFFFF;
+        aluif.port_b = {1'd1, 63'd0};
+        expected = 64'd0;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SLT: %h < %h = %h, expected %h", aluif.port_a, aluif.port_b, aluif.alu_out, expected);
+
         //SLTU test cases
         aluif.alu_op = ALU_SLTU;
         $display("\nALU SLTU Base Tests:\n");
@@ -373,6 +387,13 @@ module alu_tb;
         assert (aluif.alu_out == expected)
         else $error("ALU_SLTU: %h < %h = %h, expected %h", aluif.port_a, aluif.port_b, aluif.alu_out, expected);
 
+        aluif.port_a = 64'h7FFFFFFFFFFFFFFF;
+        aluif.port_b = {1'd1, 63'd0};
+        expected = 64'd1;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SLTU: %h < %h = %h, expected %h", aluif.port_a, aluif.port_b, aluif.alu_out, expected);
+
         //ADDW test cases
         aluif.alu_op = ALU_ADDW;
         $display("\nALU ADDW Base Tests:\n");
@@ -385,8 +406,29 @@ module alu_tb;
             else $error("ALU_ADDW: %h + %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[31:0], aluif.alu_out, expected);
         end
 
-        //TODO: ADDW overflow test cases
+        //ADDW overflow test cases
+        $display("\nALU ADDW Overflow Tests:\n");
 
+        aluif.port_a = 64'h0000_0000_7FFF_FFFF;
+        aluif.port_b = 64'h0000_0000_0000_0001;
+        expected = 64'hFFFF_FFFF_8000_0000;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_ADDW: %h + %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[31:0], aluif.alu_out, expected);
+
+        aluif.port_a = 64'h0000_0000_8000_0000;
+        aluif.port_b = 64'h0000_0000_FFFF_FFFF;
+        expected = 64'h0000_0000_7FFF_FFFF;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_ADDW: %h + %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[31:0], aluif.alu_out, expected);
+
+        aluif.port_a = 64'hDEAD_BEEF_7FFF_FFFF;
+        aluif.port_b = 64'hCAFE_BABE_0000_0001;
+        expected = 64'hFFFF_FFFF_8000_0000;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_ADDW: %h + %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[31:0], aluif.alu_out, expected);    
 
         //SUBW test cases
         aluif.alu_op = ALU_SUBW;
@@ -400,8 +442,29 @@ module alu_tb;
             else $error("ALU_SUBW: %h - %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[31:0], aluif.alu_out, expected);
         end
 
-        //TODO: SUBW overflow test cases
+        //SUBW overflow test cases
+        $display("\nALU SUBW Overflow Tests:\n");
 
+        aluif.port_a = 64'h0000_0000_8000_0000;
+        aluif.port_b = 64'h0000_0000_0000_0001;
+        expected = 64'h0000_0000_7FFF_FFFF;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SUBW: %h - %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[31:0], aluif.alu_out, expected);
+
+        aluif.port_a = 64'h0000_0000_7FFF_FFFF;
+        aluif.port_b = 64'h0000_0000_FFFF_FFFF;
+        expected = 64'hFFFF_FFFF_8000_0000;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SUBW: %h - %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[31:0], aluif.alu_out, expected);
+
+        aluif.port_a = 64'hDEAD_BEEF_8000_0000;
+        aluif.port_b = 64'hCAFE_BABE_0000_0001;
+        expected = 64'h0000_0000_7FFF_FFFF;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SUBW: %h - %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[31:0], aluif.alu_out, expected);
 
         //SLLW test cases
         aluif.alu_op = ALU_SLLW;
@@ -415,7 +478,43 @@ module alu_tb;
             else $error("ALU_SLLW: %h << %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
         end
 
-        //TODO: SLLW edge cases
+        //SLLW edge cases
+        $display("\nALU SLLW Edge Tests:\n");
+
+        aluif.port_a = '1;
+        aluif.port_b = '1;
+        expected = 64'hFFFF_FFFF_8000_0000;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SLLW: %h << %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
+
+        aluif.port_a = '1;
+        aluif.port_b = 64'b100000;
+        expected = '1;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SLLW: %h << %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
+
+        aluif.port_a = '1;
+        aluif.port_b = '0;
+        expected = '1;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SLLW: %h << %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
+
+        aluif.port_a = 64'd1;
+        aluif.port_b = 64'd31;
+        expected = 64'hFFFF_FFFF_8000_0000;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SLLW: %h << %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
+
+        aluif.port_a = 64'hDEAD_BEEF_0000_0001;
+        aluif.port_b = 64'd31;
+        expected = 64'hFFFF_FFFF_8000_0000;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SLLW: %h << %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
 
         //SRAW test cases
         aluif.alu_op = ALU_SRAW;
@@ -429,7 +528,57 @@ module alu_tb;
             else $error("ALU_SRAW: %h >>> %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
         end
 
-        //TODO: SRAW edge cases
+        //SRAW edge cases
+        $display("\nALU SRAW Edge Tests:\n");
+
+        aluif.port_a = '1;
+        aluif.port_b = '1;
+        expected = '1;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SRAW: %h >>> %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
+
+        aluif.port_a = 64'd1;
+        aluif.port_b = 64'b100000;
+        expected = 64'd1;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SRAW: %h >>> %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
+
+        aluif.port_a = '1;
+        aluif.port_b = '0;
+        expected = '1;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SRAW: %h >>> %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
+
+        aluif.port_a = 64'd1;
+        aluif.port_b = '0;
+        expected = 64'd1;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SRAW: %h >>> %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
+
+        aluif.port_a = 64'h0000_0000_8000_0000;
+        aluif.port_b = 64'd31;
+        expected = '1;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SRAW: %h >>> %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
+
+        aluif.port_a = 64'h0000_0000_4000_0000;
+        aluif.port_b = 64'd30;
+        expected = 64'd1;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SRAW: %h >>> %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
+
+        aluif.port_a = 64'hDEAD_BEEF_8000_0000;
+        aluif.port_b = 64'd31;
+        expected = '1;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SRAW: %h >>> %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
 
         //SRLW test cases
         aluif.alu_op = ALU_SRLW;
@@ -443,7 +592,57 @@ module alu_tb;
             else $error("ALU_SRLW: %h >> %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
         end
 
-        //TODO: SRLW edge cases
+        //SRLW edge cases
+        $display("\nALU SRLW Edge Tests:\n");
+
+        aluif.port_a = '1;
+        aluif.port_b = '1;
+        expected = 64'd1;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SRLW: %h >> %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
+
+        aluif.port_a = 64'd1;
+        aluif.port_b = 64'b100000;
+        expected = 64'd1;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SRLW: %h >> %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
+
+        aluif.port_a = '1;
+        aluif.port_b = '0;
+        expected = '1;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SRLW: %h >> %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
+
+        aluif.port_a = 64'd1;
+        aluif.port_b = '0;
+        expected = 64'd1;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SRLW: %h >> %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
+
+        aluif.port_a = 64'h0000_0000_8000_0000;
+        aluif.port_b = 64'd31;
+        expected = 64'd1;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SRLW: %h >> %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
+
+        aluif.port_a = 64'h0000_0000_4000_0000;
+        aluif.port_b = 64'd30;
+        expected = 64'd1;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SRLW: %h >> %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
+
+        aluif.port_a = 64'hDEAD_BEEF_FFFF_FFFF;
+        aluif.port_b = '0;
+        expected = '1;
+        #1
+        assert (aluif.alu_out == expected)
+        else $error("ALU_SRLW: %h >> %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);
 
         $display();
         $finish;

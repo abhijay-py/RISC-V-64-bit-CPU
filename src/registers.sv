@@ -2,8 +2,8 @@
 `include "types_pkg.vh"
 
 module registers (
-  input logic CLK, n_rst,
-  registers_if.regs rif
+    input logic CLK, n_rst,
+    registers_if.regs rif
 );
     import types_pkg::*;
     dword_t register_data [31:0];
@@ -22,7 +22,7 @@ module registers (
 
     end
 
-    always_ff @ (negedge CLK, negedge n_rst) begin
+    always_ff @(negedge CLK, negedge n_rst) begin
         if (!n_rst) begin
             register_data <= '{default: '0}; //replaced for verilator
         end

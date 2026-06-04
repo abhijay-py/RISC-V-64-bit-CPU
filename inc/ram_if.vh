@@ -8,7 +8,7 @@ interface ram_if;
 
     logic ram_wen, ram_ren, data_ready; 
     dword_t ram_addr; 
-    ram_block_t  wdata, rdata; 
+    ram_block_t wdata, rdata;
 
     modport ram (
         input ram_wen, ram_ren, ram_addr, wdata,

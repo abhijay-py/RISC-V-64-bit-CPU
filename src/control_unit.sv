@@ -3,7 +3,7 @@
 
 //TODO: update diagram with funct12
 module control_unit (
-  control_unit_if.cu cuif
+    control_unit_if.cu cuif
 );
     import types_pkg::*;
     logic decode_error; //Decode Error Flag (will decide what to do later)
@@ -41,14 +41,14 @@ module control_unit (
         decode_error = 0;
         cuif.reg_write = 1;
         
-        case (cuif.opcode) 
+        unique case (cuif.opcode)
             R_TYPE, I_TYPE: begin
                 cuif.imm_sel = cuif.opcode == I_TYPE ? 1 : 0;
                 if (funct3_ri == SLL || funct3_ri == SRA_SRL) begin
                     cuif.imm_type = IMM_SHIFT;
                 end
 
-                case (funct3_ri)
+                unique case (funct3_ri)
                     ADD_SUB: cuif.alu_op = (cuif.opcode != I_TYPE && funct7_r == SUB) ? ALU_SUB : ALU_ADD;
                     AND: cuif.alu_op = ALU_AND;
                     OR: cuif.alu_op = ALU_OR;
@@ -66,7 +66,7 @@ module control_unit (
                     cuif.imm_type = IMM_SHIFTW;
                 end
 
-                case (funct3_ri)
+                unique case (funct3_ri)
                     ADD_SUB: cuif.alu_op = (cuif.opcode != IW_TYPE && funct7_r == SUB) ? ALU_SUBW : ALU_ADDW;
                     SLL: cuif.alu_op = ALU_SLLW;
                     SRA_SRL: cuif.alu_op = funct7_sr == SRA ? ALU_SRAW : ALU_SRLW;
@@ -89,7 +89,7 @@ module control_unit (
                     end
                 end
 
-                case (funct3_mem) 
+                unique case (funct3_mem)
                     B: cuif.mem_data = MEM_BYTE;
                     H: cuif.mem_data = MEM_HWORD;
                     W: cuif.mem_data = MEM_WORD;
@@ -105,7 +105,7 @@ module control_unit (
                 cuif.branch = 1;
                 cuif.imm_type = IMM_BTYPE;
 
-                case (funct3_b) 
+                unique case (funct3_b)
                     BEQ, BNE: cuif.alu_op = ALU_SUB;
                     BLT, BGE: cuif.alu_op = ALU_SLT;
                     BLTU, BGEU: cuif.alu_op = ALU_SLTU;

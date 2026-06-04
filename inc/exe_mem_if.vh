@@ -24,8 +24,7 @@ interface exe_mem_if;
         input  flush, freeze, ihit, pred_taken_exe, reg_write_exe, halt_exe, mem_to_reg_exe, mem_read_exe, mem_write_exe, jump_exe, branch_exe, zero_exe, prev_ghr_exe,
         input  pc_exe, jumpaddr_exe, rd_exe, rdata2_exe, alu_out_exe, mem_data_exe, funct3_exe, imm_exe,
         output pred_taken_mem, reg_write_mem, halt_mem, mem_to_reg_mem, mem_read_mem, jump_mem, branch_mem, zero_mem, prev_ghr_mem,
-        output pc_mem, jumpaddr_mem, rd_mem,rdata2_mem, alu_out_mem, mem_data_mem, funct3_mem, imm_mem
-
+        output pc_mem, jumpaddr_mem, rd_mem, rdata2_mem, alu_out_mem, mem_data_mem, funct3_mem, imm_mem
     );
 
 

@@ -4,8 +4,8 @@
 
 //TODO: Update diagram + iron out timing decisions
 module branch_predictor (
-  input logic CLK, n_rst,
-  branch_predictor_if.bp bpif
+    input logic CLK, n_rst,
+    branch_predictor_if.bp bpif
 );
     import types_pkg::*;
     logic next_pred_taken;
@@ -30,15 +30,15 @@ module branch_predictor (
 
     assign pht_index = bpif.pc[GHR_W+1:2] ^ ghr; //ignoring bottom bits as instrs are often byte aligned. (CHANGE if adding compressed instrs)
 
-    always_ff @ (posedge CLK, negedge n_rst) begin
+    always_ff @(posedge CLK, negedge n_rst) begin
         if (!n_rst) begin
             ghr <= '0;
             bpif.prev_ghr <= '0;
             btb_zero <= '{default: '0};
             btb_one <= '{default: '0};
-            lru <= 0;
+            lru <= '0;
             bpif.pred_taken <= 0;
-            bpif.target <= 0;
+            bpif.target <= '0;
 
             for (int i = 0; i < PHT_ENTRIES; i++) begin
                 pht[i] <= BP_WNT;
@@ -70,26 +70,26 @@ module branch_predictor (
     end
 
     always_comb begin
-        next_ghr = ghr;
-        next_pht_entry = '0;
-        next_btbz_frame = '0;
-        next_btbo_frame = '0;
-        next_lru_read_entry = 0;
+        next_ghr             = ghr;
+        next_pht_entry       = '0;
+        next_btbz_frame      = '0;
+        next_btbo_frame      = '0;
+        next_lru_read_entry  = 0;
         next_lru_write_entry = 0;
 
         next_pred_taken = 0;
-        next_target = bpif.target;
+        next_target     = bpif.target;
 
-        btb_entry_found = 0;
-        btb_jump_found = 0;
-        old_pht_index = 0;
-        btb_read_entry_idx = 0;
+        btb_entry_found     = 0;
+        btb_jump_found      = 0;
+        old_pht_index       = 0;
+        btb_read_entry_idx  = 0;
         btb_write_entry_idx = 0;
 
         lru_read_entry_en = 0;
-        pht_en = 0;
-        btbz_en = 0;
-        btbo_en = 0;
+        pht_en            = 0;
+        btbz_en           = 0;
+        btbo_en           = 0;
 
         pht_entry_check = pht[pht_index];
         old_pht_index = bpif.old_pc[GHR_W+1:2] ^ bpif.old_ghr; 

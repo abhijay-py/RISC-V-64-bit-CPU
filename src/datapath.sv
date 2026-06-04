@@ -12,8 +12,8 @@
 `include "types_pkg.vh"
 
 module datapath (
-  input logic CLK, n_rst,
-  datapath_if.dp dpif
+    input logic CLK, n_rst,
+    datapath_if.dp dpif
 );
     import types_pkg::*;
 
@@ -21,7 +21,8 @@ module datapath (
 
     addr_t pc, next_pc, old_next_pc;
     logic jump_taken;
-    logic d_ren, d_wen, dmem_ready, next_d_ren, next_d_wen, next_dmem_ready;
+    logic d_ren, d_wen, dmem_ready;
+    logic next_d_ren, next_d_wen, next_dmem_ready;
 
     alu_if aluif();
     branch_predictor_if bpif();
@@ -45,7 +46,7 @@ module datapath (
     exe_mem em0 (.CLK(CLK), .n_rst(n_rst), .emif(emif));
     mem_wb mw0 (.CLK(CLK), .n_rst(n_rst), .mwif(mwif));
 
-    always_ff @ (posedge CLK, negedge n_rst) begin: PC
+    always_ff @(posedge CLK, negedge n_rst) begin: PC
       if (!n_rst) begin
         pc <= PC_INIT;
       end
@@ -75,7 +76,7 @@ module datapath (
       dpif.d_mem_data = emif.mem_data_mem;
     end 
     
-    always_ff @ (posedge CLK, negedge n_rst) begin: HALT
+    always_ff @(posedge CLK, negedge n_rst) begin: HALT
       if (!n_rst) begin
         dpif.halt <= 0;
       end
@@ -136,7 +137,7 @@ module datapath (
       deif.imm_id = 64'd4;
       deif.jumpimm_id = '0;
 
-      case (cuif.imm_type)
+      unique case (cuif.imm_type)
         IMM_ITYPE: deif.imm_id = {{52{fdif.instr_id[31]}}, fdif.instr_id[31:20]};
         IMM_UTYPE: deif.imm_id = {{32{fdif.instr_id[31]}}, fdif.instr_id[31:12], 12'b0};
         IMM_STYPE: deif.imm_id = {{52{fdif.instr_id[31]}}, fdif.instr_id[31:25], fdif.instr_id[11:7]};
@@ -272,7 +273,7 @@ module datapath (
         old_next_pc = emif.jumpaddr_mem;
       end
       else if (emif.branch_mem) begin
-        case (emif.funct3_mem) 
+        unique0 case (emif.funct3_mem)
           BEQ: jump_taken = emif.zero_mem ? 1 : 0;
           BNE: jump_taken = emif.zero_mem ? 0 : 1;
           BLT: jump_taken = emif.alu_out_mem ? 1 : 0;
@@ -287,7 +288,7 @@ module datapath (
       end
     end
 
-    always_ff @ (posedge CLK, negedge n_rst) begin: DMEM
+    always_ff @(posedge CLK, negedge n_rst) begin: DMEM
       if (!n_rst || huif.flush) begin
         d_ren <= 0;
         d_wen <= 0;
