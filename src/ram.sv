@@ -3,9 +3,9 @@
 
 module ram 
 #(
-    parameter int DEPTH     = 2**16,
-    parameter int READ_LAT  = 10,
-    parameter int WRITE_LAT = 5
+    parameter DEPTH     = 2**16,
+    parameter READ_LAT  = 10,
+    parameter WRITE_LAT = 5
 )
 (
     input logic CLK, n_rst,
@@ -13,9 +13,9 @@ module ram
 );
     import types_pkg::*;
 
-    localparam int IDX_W = $clog2(DEPTH);
-    localparam int MAX_LAT = READ_LAT > WRITE_LAT ? READ_LAT : WRITE_LAT;
-    localparam int CTR_W = $clog2(MAX_LAT + 1);
+    localparam IDX_W = $clog2(DEPTH);
+    localparam MAX_LAT = READ_LAT > WRITE_LAT ? READ_LAT : WRITE_LAT;
+    localparam CTR_W = $clog2(MAX_LAT + 1);
 
     ram_block_t mem [DEPTH];
 
