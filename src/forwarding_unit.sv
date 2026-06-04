@@ -13,17 +13,20 @@ module forwarding_unit (
 
         if (fuif.opcode_de inside {LUI, JAL, AUIPC}) begin
         end else begin
-            if (fuif.reg_write_em && !fuif.mem_read_em && fuif.rd_em != '0 && fuif.rd_em == fuif.rs1_de)
+            if (fuif.reg_write_em && !fuif.mem_read_em &&
+                fuif.rd_em != '0 && fuif.rd_em == fuif.rs1_de)
                 fuif.forward_one = 2'b01;
             else if (fuif.reg_write_mw && fuif.rd_mw != '0 && fuif.rd_mw == fuif.rs1_de)
                 fuif.forward_one = 2'b10;
 
-            if (fuif.reg_write_em && !fuif.mem_read_em && fuif.rd_em != '0 && fuif.rd_em == fuif.rs2_de)
+            if (fuif.reg_write_em && !fuif.mem_read_em &&
+                fuif.rd_em != '0 && fuif.rd_em == fuif.rs2_de)
                 fuif.forward_two = 2'b01;
             else if (fuif.reg_write_mw && fuif.rd_mw != '0 && fuif.rd_mw == fuif.rs2_de)
                 fuif.forward_two = 2'b10;
 
-            if (fuif.reg_write_em && !fuif.mem_read_em && fuif.rd_em != '0 && fuif.rd_em == fuif.rs1_de)
+            if (fuif.reg_write_em && !fuif.mem_read_em &&
+                fuif.rd_em != '0 && fuif.rd_em == fuif.rs1_de)
                 fuif.forward_jalr = 2'b01;
             else if (fuif.reg_write_mw && fuif.rd_mw != '0 && fuif.rd_mw == fuif.rs1_de)
                 fuif.forward_jalr = 2'b10;

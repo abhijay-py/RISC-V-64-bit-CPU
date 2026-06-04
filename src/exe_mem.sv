@@ -2,11 +2,11 @@
 `include "types_pkg.vh"
 
 module exe_mem (
-    input logic CLK, n_rst,
+    input logic clk, rst_n,
     exe_mem_if.em emif
 );
-    always_ff @(posedge CLK, negedge n_rst) begin
-        if (!n_rst || emif.flush) begin
+    always_ff @(posedge clk, negedge rst_n) begin
+        if (!rst_n || emif.flush) begin
             emif.pred_taken_mem <= 0;
             emif.reg_write_mem  <= 0;
             emif.halt_mem       <= 0;

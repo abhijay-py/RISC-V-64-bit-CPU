@@ -11,7 +11,7 @@ module alu (
 
     always_comb begin
         aluif.alu_out = '0;
-        result = '0;
+        result        = '0;
 
         unique0 case (aluif.alu_op)
             ALU_ADD:  aluif.alu_out = aluif.port_a + aluif.port_b;
@@ -25,23 +25,23 @@ module alu (
             ALU_SRL:  aluif.alu_out = aluif.port_a >> aluif.port_b[5:0];
             ALU_XOR:  aluif.alu_out = aluif.port_a ^ aluif.port_b;
             ALU_ADDW: begin
-                result = aluif.port_a[31:0] + aluif.port_b[31:0];
+                result        = aluif.port_a[31:0] + aluif.port_b[31:0];
                 aluif.alu_out = {{32{result[31]}}, result};
             end
             ALU_SUBW: begin
-                result = aluif.port_a[31:0] - aluif.port_b[31:0];
+                result        = aluif.port_a[31:0] - aluif.port_b[31:0];
                 aluif.alu_out = {{32{result[31]}}, result};
             end
             ALU_SLLW: begin
-                result = aluif.port_a[31:0] << aluif.port_b[4:0];
+                result        = aluif.port_a[31:0] << aluif.port_b[4:0];
                 aluif.alu_out = {{32{result[31]}}, result};
             end
             ALU_SRLW: begin
-                result = aluif.port_a[31:0] >> aluif.port_b[4:0];
+                result        = aluif.port_a[31:0] >> aluif.port_b[4:0];
                 aluif.alu_out = {{32{result[31]}}, result};
             end
             ALU_SRAW: begin
-                result = $signed(aluif.port_a[31:0]) >>> aluif.port_b[4:0];
+                result        = $signed(aluif.port_a[31:0]) >>> aluif.port_b[4:0];
                 aluif.alu_out = {{32{result[31]}}, result};
             end
         endcase

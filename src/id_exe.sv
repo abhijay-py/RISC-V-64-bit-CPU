@@ -2,11 +2,11 @@
 `include "types_pkg.vh"
 
 module id_exe (
-    input logic CLK, n_rst,
+    input logic clk, rst_n,
     id_exe_if.de deif
 );
-    always_ff @(posedge CLK, negedge n_rst) begin
-        if (!n_rst || deif.flush) begin
+    always_ff @(posedge clk, negedge rst_n) begin
+        if (!rst_n || deif.flush) begin
             deif.pred_taken_exe <= 0;
             deif.reg_write_exe  <= 0;
             deif.halt_exe       <= 0;

@@ -6,11 +6,11 @@ package types_pkg;
 /* verilator lint_off UNUSEDPARAM */
 
     //data sizes
-    parameter BYTE_W    = 8;
-    parameter HWORD_W   = BYTE_W * 2;
-    parameter WORD_W    = BYTE_W * 4;
-    parameter DWORD_W   = BYTE_W * 8;
-    parameter ADDR_W    = BYTE_W * 6; //More efficient addressing (used in x86)
+    parameter BYTE_W  = 8;
+    parameter HWORD_W = BYTE_W * 2;
+    parameter WORD_W  = BYTE_W * 4;
+    parameter DWORD_W = BYTE_W * 8;
+    parameter ADDR_W  = BYTE_W * 6; //More efficient addressing (used in x86)
 
     //Instr. Parameter sizes
     parameter OPCODE_W  = 7;
@@ -26,31 +26,30 @@ package types_pkg;
     //Cache sizes
     parameter CACHE_ADDR_W = ADDR_W;
 
-    parameter L1D_IDX_W = 6;
-    parameter L1D_BLK_OFFSET_W = 2;
+    parameter L1D_IDX_W         = 6;
+    parameter L1D_BLK_OFFSET_W  = 2;
     parameter L1D_BYTE_OFFSET_W = 3;
-    parameter L1D_TAG_W = CACHE_ADDR_W - L1D_IDX_W - L1D_BLK_OFFSET_W - L1D_BYTE_OFFSET_W;
+    parameter L1D_TAG_W         = CACHE_ADDR_W - L1D_IDX_W - L1D_BLK_OFFSET_W - L1D_BYTE_OFFSET_W;
 
-    parameter L1I_IDX_W = 7;
-    parameter L1I_BLK_OFFSET_W = 3;
+    parameter L1I_IDX_W         = 7;
+    parameter L1I_BLK_OFFSET_W  = 3;
     parameter L1I_BYTE_OFFSET_W = 2;
-    parameter L1I_TAG_W = CACHE_ADDR_W - L1I_IDX_W - L1I_BLK_OFFSET_W - L1I_BYTE_OFFSET_W;
+    parameter L1I_TAG_W         = CACHE_ADDR_W - L1I_IDX_W - L1I_BLK_OFFSET_W - L1I_BYTE_OFFSET_W;
 
-    parameter L2_IDX_W = 15;
-    parameter L2_BLK_OFFSET_W = 2;
+    parameter L2_IDX_W         = 15;
+    parameter L2_BLK_OFFSET_W  = 2;
     parameter L2_BYTE_OFFSET_W = 3;
-    parameter L2_TAG_W = CACHE_ADDR_W - L2_IDX_W - L2_BLK_OFFSET_W - L2_BYTE_OFFSET_W;
+    parameter L2_TAG_W         = CACHE_ADDR_W - L2_IDX_W - L2_BLK_OFFSET_W - L2_BYTE_OFFSET_W;
 
-    parameter RAM_BLOCK_W = (1 << L2_BLK_OFFSET_W);
-    parameter RAM_BYTE_OFFSET_W = L2_BLK_OFFSET_W + L2_BYTE_OFFSET_W;
+    parameter RAM_OFFSET_W = $clog2(DWORD_W / BYTE_W);
 
     //Branch Prediction sizes
-    parameter GHR_W = 12;
+    parameter GHR_W       = 12;
     parameter PHT_ENTRIES = 1 << GHR_W;
-    parameter PHT_W = 2;
+    parameter PHT_W       = 2;
 
-    parameter BTB_IDX_W = 9; //1024 entry 2-way BTB
-    parameter BTB_TAG_W = ADDR_W - BTB_IDX_W;
+    parameter BTB_IDX_W         = 9; //1024 entry 2-way BTB
+    parameter BTB_TAG_W         = ADDR_W - BTB_IDX_W;
     parameter BTB_FRAME_ENTRIES = 1 << BTB_IDX_W;
 
 
@@ -61,7 +60,6 @@ package types_pkg;
     typedef logic [DWORD_W-1:0] dword_t;
     typedef logic [REG_W-1:0] reg_t;
     typedef logic [ADDR_W-1:0] addr_t;
-    typedef dword_t [RAM_BLOCK_W-1:0] ram_block_t;
 
 
     //Opcode Types

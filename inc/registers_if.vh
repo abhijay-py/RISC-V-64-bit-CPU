@@ -6,9 +6,9 @@
 interface registers_if;
     import types_pkg::*;
 
-    reg_t rs1, rs2, rd;
+    reg_t   rs1, rs2, rd;
     dword_t wdata, rdata1, rdata2;
-    logic reg_write;
+    logic   reg_write;
 
     //Registers ports
     modport regs (

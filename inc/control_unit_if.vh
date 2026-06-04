@@ -5,15 +5,15 @@
 
 interface control_unit_if;
     import types_pkg::*;
-    logic [2:0] funct3;
-    logic [6:0] funct7;
+    logic [2:0]  funct3;
+    logic [6:0]  funct7;
     logic [11:0] funct12;
-    opcode_t opcode;
+    opcode_t     opcode;
 
-    aluop_t alu_op;
+    aluop_t   alu_op;
     memdata_t mem_data;
     immtype_t imm_type;
-    logic lui, imm_sel, auipc, jalr, jump, branch, mem_to_reg, mem_read, mem_write, halt, reg_write;
+    logic     lui, imm_sel, auipc, jalr, jump, branch, mem_to_reg, mem_read, mem_write, halt, reg_write;
 
 
     //Control Unit ports

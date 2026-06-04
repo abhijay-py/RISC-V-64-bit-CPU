@@ -8,8 +8,8 @@ interface mem_wb_if;
 
     logic ihit;
 
-    logic reg_write_mem, mem_to_reg_mem, reg_write_wb, mem_to_reg_wb;
-    reg_t rd_mem, rd_wb;
+    logic   reg_write_mem, mem_to_reg_mem, reg_write_wb, mem_to_reg_wb;
+    reg_t   rd_mem, rd_wb;
     dword_t dmem_data_mem, alu_out_mem, dmem_data_wb, alu_out_wb;
 
     //MEM_WB Latch ports

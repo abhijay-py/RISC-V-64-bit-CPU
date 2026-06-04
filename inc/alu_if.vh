@@ -8,7 +8,7 @@ interface alu_if;
 
     dword_t port_a, port_b, alu_out;
     aluop_t alu_op;
-    logic zero;
+    logic   zero;
 
     //ALU ports
     modport alu (

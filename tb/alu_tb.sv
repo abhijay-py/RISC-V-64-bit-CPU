@@ -7,11 +7,9 @@ module alu_tb;
     alu DUT (.aluif(aluif));
 
     dword_t alu_out;
-    logic zero_flag;
-    assign alu_out = aluif.alu_out;
+    logic   zero_flag;
+    assign alu_out   = aluif.alu_out;
     assign zero_flag = aluif.zero;
-
-
 
     always_comb begin
         if (aluif.alu_out == '0) begin

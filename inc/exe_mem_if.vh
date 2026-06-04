@@ -10,13 +10,14 @@ interface exe_mem_if;
 
     logic pred_taken_exe, reg_write_exe, halt_exe, mem_to_reg_exe, mem_read_exe, mem_write_exe, jump_exe, branch_exe, zero_exe;
     logic pred_taken_mem, reg_write_mem, halt_mem, mem_to_reg_mem, mem_read_mem, jump_mem, branch_mem, zero_mem;
+    
     logic [GHR_W-1:0] prev_ghr_exe, prev_ghr_mem;
 
-    word_t imm_exe, imm_mem;
-    addr_t pc_mem, jumpaddr_mem, pc_exe, jumpaddr_exe;
-    reg_t rd_mem, rd_exe;
-    dword_t rdata2_mem, alu_out_mem, rdata2_exe, alu_out_exe;
-    memdata_t mem_data_mem, mem_data_exe;
+    word_t     imm_exe, imm_mem;
+    addr_t     pc_mem, jumpaddr_mem, pc_exe, jumpaddr_exe;
+    reg_t      rd_mem, rd_exe;
+    dword_t    rdata2_mem, alu_out_mem, rdata2_exe, alu_out_exe;
+    memdata_t  mem_data_mem, mem_data_exe;
     funct3_b_t funct3_mem, funct3_exe;
 
     //EXE_MEM Latch ports

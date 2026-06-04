@@ -7,7 +7,8 @@ interface branch_predictor_if;
     import types_pkg::*;
 
     addr_t pc, old_next_pc, old_pc, target;
-    logic old_jump_taken, old_branch, old_pred_taken, pred_taken, old_jump;
+    logic  old_jump_taken, old_branch, old_pred_taken, pred_taken, old_jump;
+
     logic [GHR_W-1:0] old_ghr, prev_ghr;
 
     //Branch Predictor ports

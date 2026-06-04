@@ -2,11 +2,11 @@
 `include "types_pkg.vh"
 
 module mem_wb (
-    input logic CLK, n_rst,
+    input logic clk, rst_n,
     mem_wb_if.mw mwif
 );
-    always_ff @(posedge CLK, negedge n_rst) begin
-        if (!n_rst) begin
+    always_ff @(posedge clk, negedge rst_n) begin
+        if (!rst_n) begin
             mwif.reg_write_wb  <= 0;
             mwif.mem_to_reg_wb <= 0;
             mwif.rd_wb         <= '0;
