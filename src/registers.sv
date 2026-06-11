@@ -22,7 +22,7 @@ module registers (
 
     end
 
-    always_ff @(negedge clk, negedge rst_n) begin
+    always_ff @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin
             register_data <= '{default: '0}; //replaced for verilator
         end

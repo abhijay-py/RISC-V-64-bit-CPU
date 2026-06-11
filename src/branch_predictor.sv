@@ -8,6 +8,8 @@ module branch_predictor (
     branch_predictor_if.bp bpif
 );
     import types_pkg::*;
+
+`ifdef BP_GSHARE //GSHARE predictor
     logic  next_pred_taken;
     addr_t next_target;
 
@@ -36,16 +38,19 @@ module branch_predictor (
 
     always_ff @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin
+            bpif.target     <= '0;
             ghr             <= '0;
             bpif.prev_ghr   <= '0;
-            btb_zero        <= '{default: '0};
-            btb_one         <= '{default: '0};
             lru             <= '0;
             bpif.pred_taken <= 0;
-            bpif.target     <= '0;
 
             for (int i = 0; i < PHT_ENTRIES; i++) begin
                 pht[i] <= BP_WNT;
+            end
+
+            for (int i = 0; i < BTB_FRAME_ENTRIES; i++) begin
+                btb_zero[i] <= '0;
+                btb_one[i]  <= '0;
             end
         end
         else begin
@@ -75,35 +80,35 @@ module branch_predictor (
 
     always_comb begin
         next_ghr             = ghr;
-        next_pht_entry       = '0;
+        next_pht_entry       = BP_WNT;
         next_btbz_frame      = '0;
         next_btbo_frame      = '0;
-        next_lru_read_entry  = 0;
-        next_lru_write_entry = 0;
+        next_lru_read_entry  = 1'b0;
+        next_lru_write_entry = 1'b0;
 
-        next_pred_taken = 0;
-        next_target     = bpif.target;
+        next_pred_taken = 1'b0;
+        next_target     = bpif.pc + addr_t'(4);
 
-        btb_entry_found     = 0;
-        btb_jump_found      = 0;
-        old_pht_index       = 0;
-        btb_read_entry_idx  = 0;
-        btb_write_entry_idx = 0;
+        btb_entry_found     = 1'b0;
+        btb_jump_found      = 1'b0;
+        old_pht_index       = '0;
+        btb_read_entry_idx  = '0;
+        btb_write_entry_idx = '0;
 
-        lru_read_entry_en = 0;
-        pht_en            = 0;
-        btbz_en           = 0;
-        btbo_en           = 0;
+        lru_read_entry_en = 1'b0;
+        pht_en            = 1'b0;
+        btbz_en           = 1'b0;
+        btbo_en           = 1'b0;
 
         pht_entry_check = pht[pht_index];
         old_pht_index   = bpif.old_pc[GHR_W+1:2] ^ bpif.old_ghr;
 
-        pc_for_btb         = bpif.pc;
+        pc_for_btb         = btb_pc_t'(bpif.pc);
         btb_read_entry_idx = pc_for_btb.idx;
         btbz_result        = btb_zero[pc_for_btb.idx];
         btbo_result        = btb_one[pc_for_btb.idx];
 
-        oldpc_for_btb       = bpif.old_pc;
+        oldpc_for_btb       = btb_pc_t'(bpif.old_pc);
         btb_write_entry_idx = oldpc_for_btb.idx;
         next_btbz_frame     = btb_zero[oldpc_for_btb.idx];
         next_btbo_frame     = btb_one[oldpc_for_btb.idx];
@@ -111,14 +116,14 @@ module branch_predictor (
         //BTB UPDATE LOGIC
         if (bpif.old_branch || bpif.old_jump) begin
             if (next_btbz_frame.valid && oldpc_for_btb.tag == next_btbz_frame.tag) begin
-                next_lru_write_entry = 1;
+                next_lru_write_entry = 1'b1;
                 next_btbz_frame.pc   = bpif.old_next_pc;
-                btbz_en              = 1;
+                btbz_en              = 1'b1;
             end
             else if (next_btbo_frame.valid && oldpc_for_btb.tag == next_btbo_frame.tag) begin
-                next_lru_write_entry = 0;
+                next_lru_write_entry = 1'b0;
                 next_btbo_frame.pc   = bpif.old_next_pc;
-                btbo_en              = 1;
+                btbo_en              = 1'b1;
             end
             else begin
                 next_lru_write_entry = ~lru[oldpc_for_btb.idx];
@@ -126,12 +131,12 @@ module branch_predictor (
                 if (lru[oldpc_for_btb.idx]) begin
                     next_btbo_frame = '{valid: 1'b1, jump: bpif.old_jump,
                                         tag: oldpc_for_btb.tag, pc: bpif.old_next_pc};
-                    btbo_en         = 1;
+                    btbo_en         = 1'b1;
                 end
                 else begin
                     next_btbz_frame = '{valid: 1'b1, jump: bpif.old_jump,
                                         tag: oldpc_for_btb.tag, pc: bpif.old_next_pc};
-                    btbz_en         = 1;
+                    btbz_en         = 1'b1;
                 end
             end
         end
@@ -141,10 +146,40 @@ module branch_predictor (
             //checks if there will be overflow
             if ((pht[old_pht_index] != BP_ST  && bpif.old_jump_taken) ||
                 (pht[old_pht_index] != BP_SNT && !bpif.old_jump_taken)) begin
-                pht_en         = 1;
-                next_pht_entry = bpif.old_jump_taken ? pht[old_pht_index] + 1
-                                                     : pht[old_pht_index] - 1;
+                pht_en         = 1'b1;
+                next_pht_entry = bpif.old_jump_taken ? branchpred_t'(pht[old_pht_index] + 2'd1)
+                                                     : branchpred_t'(pht[old_pht_index] - 2'd1);
             end
+        end
+
+        //BTB LOOKUP LOGIC
+        if (btbz_result.valid && pc_for_btb.tag == btbz_result.tag) begin
+            next_target         = btbz_result.pc;
+            next_lru_read_entry = 1'b1;
+            lru_read_entry_en   = 1'b1;
+            btb_entry_found     = 1'b1;
+            btb_jump_found      = btbz_result.jump;
+        end
+        else if (btbo_result.valid && pc_for_btb.tag == btbo_result.tag) begin
+            next_target         = btbo_result.pc;
+            next_lru_read_entry = 1'b0;
+            lru_read_entry_en   = 1'b1;
+            btb_read_entry_idx  = pc_for_btb.idx;
+            btb_entry_found     = 1'b1;
+            btb_jump_found      = btbo_result.jump;
+        end
+        else if (bpif.pc == bpif.old_pc && (btbo_en || btbz_en)) begin
+            next_target     = bpif.old_next_pc;
+            btb_entry_found = 1'b1;
+            btb_jump_found  = bpif.old_jump;
+        end
+
+        //PHT LOOKUP LOGIC
+        if (old_pht_index == pht_index && pht_en) begin
+            pht_entry_check = next_pht_entry;
+        end
+        if (btb_entry_found && (btb_jump_found || pht_entry_check[1] == 1'b1)) begin
+            next_pred_taken = 1'b1;
         end
 
         //GHR UPDATE LOGIC
@@ -154,36 +189,172 @@ module branch_predictor (
         else if (btb_entry_found) begin
             next_ghr = {ghr[10:0], next_pred_taken};
         end
+    end
+
+`elsif BP_2BIT //Two bit saturating counter predictor
+    logic  next_pred_taken;
+    addr_t next_target;
+
+    branchpred_t pht_counter, next_pht_counter, pht_entry_check;
+
+    logic    btb_entry_found, btb_jump_found;
+    btb_pc_t pc_for_btb, oldpc_for_btb;
+
+    btb_frame [BTB_FRAME_ENTRIES-1:0] btb_zero, btb_one;
+    logic     [BTB_FRAME_ENTRIES-1:0] lru;
+
+    logic [BTB_IDX_W-1:0] btb_read_entry_idx, btb_write_entry_idx;
+
+    logic     next_lru_write_entry, next_lru_read_entry;
+    btb_frame btbz_result, btbo_result, next_btbz_frame, next_btbo_frame;
+
+    logic pht_en, btbz_en, btbo_en, lru_read_entry_en;
+
+    always_ff @(posedge clk, negedge rst_n) begin
+        if (!rst_n) begin
+            bpif.target     <= '0;
+            lru             <= '0;
+            bpif.pred_taken <= 0;
+            pht_counter     <= BP_WNT;
+
+            for (int i = 0; i < BTB_FRAME_ENTRIES; i++) begin
+                btb_zero[i] <= '0;
+                btb_one[i]  <= '0;
+            end
+        end
+        else begin
+            if (pht_en) begin
+                pht_counter <= next_pht_counter;
+            end
+            if (btbz_en) begin
+                btb_zero[btb_write_entry_idx] <= next_btbz_frame;
+            end
+            if (btbo_en) begin
+                btb_one[btb_write_entry_idx] <= next_btbo_frame;
+            end
+            if (btbo_en || btbz_en) begin
+                lru[btb_write_entry_idx] <= next_lru_write_entry;
+            end
+            else if (lru_read_entry_en) begin
+                lru[btb_read_entry_idx] <= next_lru_read_entry;
+            end
+
+            bpif.pred_taken <= next_pred_taken;
+            bpif.target     <= next_target;
+        end
+    end
+
+    always_comb begin
+        next_pht_counter     = pht_counter;
+        next_btbz_frame      = '0;
+        next_btbo_frame      = '0;
+        next_lru_read_entry  = 1'b0;
+        next_lru_write_entry = 1'b0;
+
+        next_pred_taken = 1'b0;
+        next_target     = bpif.target;
+
+        btb_entry_found     = 1'b0;
+        btb_jump_found      = 1'b0;
+        btb_read_entry_idx  = '0;
+        btb_write_entry_idx = '0;
+
+        lru_read_entry_en = 1'b0;
+        pht_en            = 1'b0;
+        btbz_en           = 1'b0;
+        btbo_en           = 1'b0;
+
+        pc_for_btb         = btb_pc_t'(bpif.pc);
+        btb_read_entry_idx = pc_for_btb.idx;
+        btbz_result        = btb_zero[pc_for_btb.idx];
+        btbo_result        = btb_one[pc_for_btb.idx];
+
+        oldpc_for_btb       = btb_pc_t'(bpif.old_pc);
+        btb_write_entry_idx = oldpc_for_btb.idx;
+        next_btbz_frame     = btb_zero[oldpc_for_btb.idx];
+        next_btbo_frame     = btb_one[oldpc_for_btb.idx];
+
+        //BTB UPDATE LOGIC
+        if (bpif.old_branch || bpif.old_jump) begin
+            if (next_btbz_frame.valid && oldpc_for_btb.tag == next_btbz_frame.tag) begin
+                next_lru_write_entry = 1'b1;
+                next_btbz_frame.pc   = bpif.old_next_pc;
+                btbz_en              = 1'b1;
+            end
+            else if (next_btbo_frame.valid && oldpc_for_btb.tag == next_btbo_frame.tag) begin
+                next_lru_write_entry = 1'b0;
+                next_btbo_frame.pc   = bpif.old_next_pc;
+                btbo_en              = 1'b1;
+            end
+            else begin
+                next_lru_write_entry = ~lru[oldpc_for_btb.idx];
+
+                if (lru[oldpc_for_btb.idx]) begin
+                    next_btbo_frame = '{valid: 1'b1, jump: bpif.old_jump,
+                                        tag: oldpc_for_btb.tag, pc: bpif.old_next_pc};
+                    btbo_en         = 1'b1;
+                end
+                else begin
+                    next_btbz_frame = '{valid: 1'b1, jump: bpif.old_jump,
+                                        tag: oldpc_for_btb.tag, pc: bpif.old_next_pc};
+                    btbz_en         = 1'b1;
+                end
+            end
+        end
+
+        //PHT UPDATE LOGIC
+        if (bpif.old_branch) begin
+            //checks if there will be overflow
+            if ((pht_counter != BP_ST  && bpif.old_jump_taken) ||
+                (pht_counter != BP_SNT && !bpif.old_jump_taken)) begin
+                pht_en           = 1'b1;
+                next_pht_counter = bpif.old_jump_taken ? branchpred_t'(pht_counter + 2'd1)
+                                                        : branchpred_t'(pht_counter - 2'd1);
+            end
+        end
 
         //BTB LOOKUP LOGIC
         if (btbz_result.valid && pc_for_btb.tag == btbz_result.tag) begin
             next_target         = btbz_result.pc;
-            next_lru_read_entry = 1;
-            lru_read_entry_en   = 1;
-            btb_entry_found     = 1;
+            next_lru_read_entry = 1'b1;
+            lru_read_entry_en   = 1'b1;
+            btb_entry_found     = 1'b1;
             btb_jump_found      = btbz_result.jump;
         end
         else if (btbo_result.valid && pc_for_btb.tag == btbo_result.tag) begin
             next_target         = btbo_result.pc;
-            next_lru_read_entry = 0;
-            lru_read_entry_en   = 1;
+            next_lru_read_entry = 1'b0;
+            lru_read_entry_en   = 1'b1;
             btb_read_entry_idx  = pc_for_btb.idx;
-            btb_entry_found     = 1;
+            btb_entry_found     = 1'b1;
             btb_jump_found      = btbo_result.jump;
         end
         else if (bpif.pc == bpif.old_pc && (btbo_en || btbz_en)) begin
             next_target     = bpif.old_next_pc;
-            btb_entry_found = 1;
+            btb_entry_found = 1'b1;
             btb_jump_found  = bpif.old_jump;
         end
 
-        //PHT LOOKUP LOGIC
-        if (old_pht_index == pht_index && pht_en) begin
-            pht_entry_check = next_pht_entry;
-        end
-        if (btb_entry_found && (btb_jump_found || pht_entry_check[1] == 1)) begin
-            next_pred_taken = 1;
+        //PREDICTION LOGIC (forward the counter since there's only one and old_branch may be updating it this cycle)
+        pht_entry_check = pht_en ? next_pht_counter : pht_counter;
+        if (btb_entry_found && (btb_jump_found || pht_entry_check[1] == 1'b1)) begin
+            next_pred_taken = 1'b1;
         end
     end
+
+`else //Always not-taken predictor (default)
+    addr_t next_target;
+
+    assign next_target = bpif.pc + addr_t'(4);
+
+    always_ff @(posedge clk, negedge rst_n) begin
+        if (!rst_n) begin
+            bpif.target <= '0;
+        end
+        else begin
+            bpif.target <= next_target;
+        end
+    end
+`endif
 
 endmodule

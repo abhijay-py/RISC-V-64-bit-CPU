@@ -7,8 +7,8 @@ module mem_wb (
 );
     always_ff @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin
-            mwif.reg_write_wb  <= 0;
-            mwif.mem_to_reg_wb <= 0;
+            mwif.reg_write_wb  <= 1'b0;
+            mwif.mem_to_reg_wb <= 1'b0;
             mwif.rd_wb         <= '0;
             mwif.dmem_data_wb  <= '0;
             mwif.alu_out_wb    <= '0;

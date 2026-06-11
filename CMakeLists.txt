@@ -18,11 +18,22 @@ set(TB_DIR   ${CMAKE_SOURCE_DIR}/tb)
 set(GTKW_DIR ${CMAKE_SOURCE_DIR}/gtkw)
 set(OUT_DIR  ${CMAKE_BINARY_DIR}/out)
 
+# Branch predictor variant: NT (default, static not-taken), 2BIT (2-bit
+# saturating counter + BTB), or GSHARE (gshare PHT + BTB + GHR).
+set(BP_TYPE "NT" CACHE STRING "Branch predictor variant: NT, 2BIT, or GSHARE")
+set_property(CACHE BP_TYPE PROPERTY STRINGS NT 2BIT GSHARE)
+if(NOT BP_TYPE MATCHES "^(NT|2BIT|GSHARE)$")
+    message(FATAL_ERROR "BP_TYPE must be NT, 2BIT, or GSHARE (got '${BP_TYPE}')")
+endif()
+
 set(VLT_FLAGS
     --binary --timing -sv --assert -Wall -O2
     --threads ${NPROC} --clk CLK
     -I${INC_DIR}
 )
+if(NOT BP_TYPE STREQUAL "NT")
+    list(APPEND VLT_FLAGS +define+BP_${BP_TYPE})
+endif()
 
 if(WIN32)
     set(EXE_EXT .exe)
@@ -72,11 +83,11 @@ function(add_module_targets MOD TB_FILE)
     add_custom_target(sim_${MOD}
         COMMAND ${CMAKE_COMMAND} -E make_directory ${MOD_OUT}
         COMMAND ${CMAKE_COMMAND} -E touch ${SIM_LOG}
-        COMMAND sh -c "${VERILATOR} ${VLT_FLAGS_STR} --trace ${SRC_FILE} ${DEP_SRCS_STR} ${TB_FILE} --top ${MOD}_tb --Mdir ${MOD_OUT} -o ${MOD}_sim 2>&1 | tee ${SIM_LOG}"
+        COMMAND sh -c "${VERILATOR} ${VLT_FLAGS_STR} --trace-fst --trace-structs ${SRC_FILE} ${DEP_SRCS_STR} ${TB_FILE} --top ${MOD}_tb --Mdir ${MOD_OUT} -o ${MOD}_sim 2>&1 | tee ${SIM_LOG}"
         COMMAND sh -c "${MOD_OUT}/${MOD}_sim${EXE_EXT} 2>&1 | tee -a ${SIM_LOG}"
         COMMAND ${CMAKE_COMMAND} -E rename
-                ${CMAKE_BINARY_DIR}/dump.vcd
-                ${CMAKE_BINARY_DIR}/${MOD}.vcd
+                ${CMAKE_BINARY_DIR}/dump.fst
+                ${CMAKE_BINARY_DIR}/${MOD}.fst
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMENT "[sim] ${MOD}"
         VERBATIM
@@ -111,8 +122,10 @@ function(add_module_targets MOD TB_FILE)
     add_custom_target(wave_${MOD}
         COMMAND ${CMAKE_COMMAND}
                 -DGTKWAVE=${GTKWAVE}
-                -DVCD=${CMAKE_BINARY_DIR}/${MOD}.vcd
+                -DWAVE=${CMAKE_BINARY_DIR}/${MOD}.fst
                 -DGTKW=${GTKW_DIR}/${MOD}.gtkw
+                -DMOD=${MOD}
+                -DBUILD_DIR=${CMAKE_BINARY_DIR}
                 -P ${CMAKE_SOURCE_DIR}/cmake/wave.cmake
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMENT "[wave] ${MOD}"
@@ -136,8 +149,8 @@ foreach(TB_FILE IN LISTS TB_FILES)
 endforeach()
 
 # ---------------------------------------------------------------------------
-# Extend the built-in `clean` target to also remove logs, VCDs, coverage.dat,
-# and the verilator out/ directory.
+# Extend the built-in `clean` target to also remove logs, FST waveforms,
+# coverage.dat, and the verilator out/ directory.
 # ---------------------------------------------------------------------------
 set(EXTRA_CLEAN_FILES
     ${CMAKE_BINARY_DIR}/sim.log
@@ -149,7 +162,7 @@ set(EXTRA_CLEAN_FILES
     ${CMAKE_BINARY_DIR}/out
 )
 foreach(MOD IN LISTS DISCOVERED_MODS)
-    list(APPEND EXTRA_CLEAN_FILES ${CMAKE_BINARY_DIR}/${MOD}.vcd)
+    list(APPEND EXTRA_CLEAN_FILES ${CMAKE_BINARY_DIR}/${MOD}.fst)
 endforeach()
 set_directory_properties(PROPERTIES ADDITIONAL_CLEAN_FILES "${EXTRA_CLEAN_FILES}")
 
@@ -172,7 +185,7 @@ add_custom_target(help_vlt
     COMMAND ${CMAKE_COMMAND} -E echo ""
     COMMAND ${CMAKE_COMMAND} -E echo "Output (all under <build_dir>/):"
     COMMAND ${CMAKE_COMMAND} -E echo "  sim.log / coverage.log        simulation and coverage logs"
-    COMMAND ${CMAKE_COMMAND} -E echo "  <module>.vcd                  waveform for GTKWave"
+    COMMAND ${CMAKE_COMMAND} -E echo "  <module>.fst                  waveform for GTKWave"
     COMMAND ${CMAKE_COMMAND} -E echo "  out/<module>/                 verilator obj + binary"
     COMMAND ${CMAKE_COMMAND} -E echo "  coverage_annotated/           annotated source (line + toggle + branch coverage)"
     COMMAND ${CMAKE_COMMAND} -E echo "  coverage_html/index.html      HTML report, line coverage only (requires genhtml)"

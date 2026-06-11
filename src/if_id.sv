@@ -8,7 +8,7 @@ module if_id (
     always_ff @(posedge clk, negedge rst_n) begin
         if (!rst_n || fdif.flush) begin
             fdif.instr_id      <= 32'h13; //NOOP
-            fdif.pred_taken_id <= 0;
+            fdif.pred_taken_id <= 1'b0;
             fdif.pc_id         <= '0;
             fdif.prev_ghr_id   <= '0;
         end

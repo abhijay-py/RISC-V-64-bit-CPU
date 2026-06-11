@@ -7,17 +7,17 @@ module id_exe (
 );
     always_ff @(posedge clk, negedge rst_n) begin
         if (!rst_n || deif.flush) begin
-            deif.pred_taken_exe <= 0;
-            deif.reg_write_exe  <= 0;
-            deif.halt_exe       <= 0;
-            deif.mem_to_reg_exe <= 0;
-            deif.mem_read_exe   <= 0;
-            deif.mem_write_exe  <= 0;
-            deif.jump_exe       <= 0;
-            deif.branch_exe     <= 0;
-            deif.jalr_exe       <= 0;
-            deif.auipc_exe      <= 0;
-            deif.imm_sel_exe    <= 0;
+            deif.pred_taken_exe <= 1'b0;
+            deif.reg_write_exe  <= 1'b0;
+            deif.halt_exe       <= 1'b0;
+            deif.mem_to_reg_exe <= 1'b0;
+            deif.mem_read_exe   <= 1'b0;
+            deif.mem_write_exe  <= 1'b0;
+            deif.jump_exe       <= 1'b0;
+            deif.branch_exe     <= 1'b0;
+            deif.jalr_exe       <= 1'b0;
+            deif.auipc_exe      <= 1'b0;
+            deif.imm_sel_exe    <= 1'b0;
             deif.alu_op_exe     <= '0;
             deif.mem_data_exe   <= '0;
             deif.opcode_exe     <= '0;

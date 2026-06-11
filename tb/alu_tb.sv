@@ -31,7 +31,7 @@ module alu_tb;
         aluif.port_b = '0;
         #1;
 
-        $dumpfile("dump.vcd");
+        $dumpfile("dump.fst");
         $dumpvars(0, alu_tb);
         $monitor("zero = %b, alu_out = %h", zero_flag, alu_out);
 
@@ -520,7 +520,7 @@ module alu_tb;
         repeat (5) begin
             aluif.port_a = {$urandom(), $urandom()};
             aluif.port_b = {$urandom(), $urandom()};
-            expected = 64'($signed(aluif.port_a[31:0]) >>> aluif.port_b[4:0]);
+            expected = 64'($signed($signed(aluif.port_a[31:0]) >>> aluif.port_b[4:0]));
             #1
             assert (aluif.alu_out == expected)
             else $error("ALU_SRAW: %h >>> %h = %h, expected %h", aluif.port_a[31:0], aluif.port_b[4:0], aluif.alu_out, expected);

@@ -27,6 +27,12 @@ module registers_tb;
     else $error("r0 non-zero on rs2: %h", rif.rdata2);
 
     initial begin
+        rst_n = 0;
+        repeat (4) @(posedge clk);
+        rst_n = 1;
+    end
+
+    initial begin
         dword_t fwd_data;
         
         rif.reg_write = 0;
@@ -37,7 +43,7 @@ module registers_tb;
         rst_n = 1;
         #1;
 
-        $dumpfile("dump.vcd");
+        $dumpfile("dump.fst");
         $dumpvars(0, registers_tb);
         $monitor("clk = %b, rst_n = %b, rdata1 = %h, rdata2 = %h", clk, rst_n, rdata1, rdata2);
         

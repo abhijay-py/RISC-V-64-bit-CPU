@@ -56,7 +56,7 @@ module datapath (
     end
 
     always_comb begin: NEXT_PC_LOGIC
-      next_pc = pc + 4;
+      next_pc = pc + 48'd4;
 
       if (huif.flush) begin
         next_pc = old_next_pc;
@@ -78,7 +78,7 @@ module datapath (
 
     always_ff @(posedge clk, negedge rst_n) begin: HALT
       if (!rst_n) begin
-        dpif.halt <= 0;
+        dpif.halt <= 1'b0;
       end
       else begin
         dpif.halt <= dpif.halt | emif.halt_mem;
@@ -134,21 +134,21 @@ module datapath (
     end
 
     always_comb begin: IMM_GEN
-      deif.imm_id     = 64'd4;
+      deif.imm_id     = 32'd4;
       deif.jumpimm_id = '0;
 
       unique case (cuif.imm_type)
-        IMM_ITYPE:  deif.imm_id     = {{52{fdif.instr_id[31]}}, fdif.instr_id[31:20]};
-        IMM_UTYPE:  deif.imm_id     = {{32{fdif.instr_id[31]}}, fdif.instr_id[31:12], 12'b0};
-        IMM_STYPE:  deif.imm_id     = {{52{fdif.instr_id[31]}},
+        IMM_ITYPE:  deif.imm_id     = {{20{fdif.instr_id[31]}}, fdif.instr_id[31:20]};
+        IMM_UTYPE:  deif.imm_id     = {fdif.instr_id[31:12], 12'b0};
+        IMM_STYPE:  deif.imm_id     = {{20{fdif.instr_id[31]}},
                                         fdif.instr_id[31:25], fdif.instr_id[11:7]};
-        IMM_BTYPE:  deif.imm_id     = {{52{fdif.instr_id[31]}}, fdif.instr_id[7],
+        IMM_BTYPE:  deif.imm_id     = {{20{fdif.instr_id[31]}}, fdif.instr_id[7],
                                         fdif.instr_id[30:25], fdif.instr_id[11:8], 1'b0};
-        IMM_UJTYPE: deif.jumpimm_id = {{44{fdif.instr_id[31]}}, fdif.instr_id[19:12],
+        IMM_UJTYPE: deif.jumpimm_id = {{28{fdif.instr_id[31]}}, fdif.instr_id[19:12],
                                         fdif.instr_id[20], fdif.instr_id[30:21], 1'b0};
-        IMM_IJTYPE: deif.jumpimm_id = {{52{fdif.instr_id[31]}}, fdif.instr_id[31:20]};
-        IMM_SHIFT:  deif.imm_id     = {58'b0, fdif.instr_id[25:20]};
-        IMM_SHIFTW: deif.imm_id     = {59'b0, fdif.instr_id[24:20]};
+        IMM_IJTYPE: deif.jumpimm_id = {{36{fdif.instr_id[31]}}, fdif.instr_id[31:20]};
+        IMM_SHIFT:  deif.imm_id     = {26'b0, fdif.instr_id[25:20]};
+        IMM_SHIFTW: deif.imm_id     = {27'b0, fdif.instr_id[24:20]};
       endcase
     end
 
@@ -207,15 +207,15 @@ module datapath (
     end
 
     always_comb begin: JUMP_ADDR
-      emif.jumpaddr_exe = deif.pc_exe + deif.jumpimm_exe;
+      emif.jumpaddr_mem = deif.pc_exe + deif.jumpimm_exe;
 
       if (deif.jalr_exe) begin
-        emif.jumpaddr_exe = (deif.rdata1_exe + deif.jumpimm_exe) & ~64'h1;
+        emif.jumpaddr_mem = (deif.rdata1_exe + deif.jumpimm_exe) & ~48'h1
         if (fuif.forward_jalr == 2'b01) begin
-          emif.jumpaddr_exe = (emif.alu_out_mem + deif.jumpimm_exe) & ~64'h1;
+          emif.jumpaddr_mem = (emif.alu_out_mem + deif.jumpimm_exe) & ~48'h1;
         end
         else if (fuif.forward_jalr == 2'b10) begin
-          emif.jumpaddr_exe = (rfif.wdata + deif.jumpimm_exe) & ~64'h1;
+          emif.jumpaddr_mem = (rfif.wdata + deif.jumpimm_exe) & ~48'h1;
         end
       end
     end
@@ -277,12 +277,12 @@ module datapath (
       end
       else if (emif.branch_mem) begin
         unique0 case (emif.funct3_mem)
-          BEQ:  jump_taken = emif.zero_mem ? 1 : 0;
-          BNE:  jump_taken = emif.zero_mem ? 0 : 1;
-          BLT:  jump_taken = emif.alu_out_mem ? 1 : 0;
-          BLTU: jump_taken = emif.alu_out_mem ? 1 : 0;
-          BGE:  jump_taken = emif.alu_out_mem ? 0 : 1;
-          BGEU: jump_taken = emif.alu_out_mem ? 0 : 1;
+          BEQ:  jump_taken = emif.zero_mem ? 1'b1 : 1'b0;
+          BNE:  jump_taken = emif.zero_mem ? 1'b0 : 1'b1;
+          BLT:  jump_taken = emif.alu_out_mem ? 1'b1 : 1'b0;
+          BLTU: jump_taken = emif.alu_out_mem ? 1'b1 : 1'b0;
+          BGE:  jump_taken = emif.alu_out_mem ? 1'b0 : 1'b1;
+          BGEU: jump_taken = emif.alu_out_mem ? 1'b0 : 1'b1;
         endcase
 
         if (jump_taken) begin
@@ -293,9 +293,9 @@ module datapath (
 
     always_ff @(posedge clk, negedge rst_n) begin: DMEM
       if (!rst_n || huif.flush) begin
-        d_ren      <= 0;
-        d_wen      <= 0;
-        dmem_ready <= 1;
+        d_ren      <= 1'b0;
+        d_wen      <= 1'b0;
+        dmem_ready <= 1'b1;
       end
       else begin
         d_ren              <= next_d_ren;
@@ -316,9 +316,9 @@ module datapath (
         next_dmem_ready = !(next_d_ren || next_d_wen);
       end
       else if (dpif.dhit) begin
-        next_d_ren      = 0;
-        next_d_wen      = 0;
-        next_dmem_ready = 1;
+        next_d_ren      = 1'b0;
+        next_d_wen      = 1'b0;
+        next_dmem_ready = 1'b1;
       end
     end
 

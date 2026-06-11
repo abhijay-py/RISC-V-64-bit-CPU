@@ -7,14 +7,14 @@ module exe_mem (
 );
     always_ff @(posedge clk, negedge rst_n) begin
         if (!rst_n || emif.flush) begin
-            emif.pred_taken_mem <= 0;
-            emif.reg_write_mem  <= 0;
-            emif.halt_mem       <= 0;
-            emif.mem_to_reg_mem <= 0;
-            emif.mem_read_mem   <= 0;
-            emif.jump_mem       <= 0;
-            emif.branch_mem     <= 0;
-            emif.zero_mem       <= 0;
+            emif.pred_taken_mem <= 1'b0;
+            emif.reg_write_mem  <= 1'b0;
+            emif.halt_mem       <= 1'b0;
+            emif.mem_to_reg_mem <= 1'b0;
+            emif.mem_read_mem   <= 1'b0;
+            emif.jump_mem       <= 1'b0;
+            emif.branch_mem     <= 1'b0;
+            emif.zero_mem       <= 1'b0;
             emif.prev_ghr_mem   <= '0;
             emif.pc_mem         <= '0;
             emif.jumpaddr_mem   <= '0;

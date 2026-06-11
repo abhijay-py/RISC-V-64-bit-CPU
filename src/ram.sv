@@ -32,11 +32,11 @@ module ram
         if (!rst_n) begin
             count            <= '0;
             target           <= '0;
-            busy             <= 0;
-            current_wen      <= 0;
+            busy             <= 1'b0;
+            current_wen      <= 1'b0;
             current_idx      <= '0;
             current_wdata    <= BAD_VAL;
-            ramif.data_ready <= 0;
+            ramif.data_ready <= 1'b0;
             ramif.rdata      <= BAD_VAL;
         end
         else begin
@@ -62,13 +62,13 @@ module ram
         next_current_wen   = current_wen;
         next_current_idx   = current_idx;
         next_current_wdata = current_wdata;
-        next_data_ready    = 0;
+        next_data_ready    = 1'b0;
         next_rdata         = BAD_VAL;
 
         if (!busy) begin
             next_current_wdata = BAD_VAL;
             if (ramif.ram_wen || ramif.ram_ren) begin
-                next_busy          = 1;
+                next_busy          = 1'b1;
                 next_count         = '0;
                 next_target        = CTR_W'(ramif.ram_wen ? WRITE_LAT - 1 : READ_LAT - 1);
                 next_current_wen   = ramif.ram_wen;
@@ -80,8 +80,8 @@ module ram
             next_count = count + 1;
 
             if (count == target) begin
-                next_busy       = 0;
-                next_data_ready = 1;
+                next_busy       = 1'b0;
+                next_data_ready = 1'b1;
                 if (!current_wen) begin
                     next_rdata = mem[current_idx];
                 end
