@@ -1,5 +1,5 @@
-`include "alu_if.vh"
-`include "types_pkg.vh"
+`include "alu_if.svh"
+`include "types_pkg.svh"
 
 module alu (
     alu_if.alu aluif

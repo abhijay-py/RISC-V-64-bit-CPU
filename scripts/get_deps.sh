@@ -6,7 +6,7 @@
 #   <module>   module name (e.g. alu)
 #   [src_dir]  directory prepended to each dep (default: <repo_root>/rtl)
 #
-# rtl/<module>.sv and all .vh files are always included by the caller --
+# rtl/<module>.sv and all .svh files are always included by the caller --
 # this script only handles *extra* instantiated modules.
 
 set -euo pipefail

@@ -1,7 +1,7 @@
-`ifndef FORWARDING_UNIT_IF_VH
-`define FORWARDING_UNIT_IF_VH
+`ifndef FORWARDING_UNIT_IF_SVH
+`define FORWARDING_UNIT_IF_SVH
 
-`include "types_pkg.vh"
+`include "types_pkg.svh"
 
 interface forwarding_unit_if;
     import types_pkg::*;

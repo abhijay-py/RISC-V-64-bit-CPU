@@ -1,7 +1,7 @@
-`ifndef CONTROL_UNIT_IF_VH
-`define CONTROL_UNIT_IF_VH
+`ifndef CONTROL_UNIT_IF_SVH
+`define CONTROL_UNIT_IF_SVH
 
-`include "types_pkg.vh"
+`include "types_pkg.svh"
 
 interface control_unit_if;
     import types_pkg::*;

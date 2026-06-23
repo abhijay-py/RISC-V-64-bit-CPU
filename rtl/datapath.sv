@@ -1,15 +1,15 @@
-`include "datapath_if.vh"
-`include "branch_predictor_if.vh"
-`include "registers_if.vh"
-`include "control_unit_if.vh"
-`include "forwarding_unit_if.vh"
-`include "hazard_unit_if.vh"
-`include "if_id_if.vh"
-`include "id_exe_if.vh"
-`include "exe_mem_if.vh"
-`include "mem_wb_if.vh"
+`include "datapath_if.svh"
+`include "branch_predictor_if.svh"
+`include "registers_if.svh"
+`include "control_unit_if.svh"
+`include "forwarding_unit_if.svh"
+`include "hazard_unit_if.svh"
+`include "if_id_if.svh"
+`include "id_exe_if.svh"
+`include "exe_mem_if.svh"
+`include "mem_wb_if.svh"
 
-`include "types_pkg.vh"
+`include "types_pkg.svh"
 
 module datapath (
     input logic clk, rst_n,
@@ -144,9 +144,9 @@ module datapath (
                                         fdif.instr_id[31:25], fdif.instr_id[11:7]};
         IMM_BTYPE:  deif.imm_id     = {{20{fdif.instr_id[31]}}, fdif.instr_id[7],
                                         fdif.instr_id[30:25], fdif.instr_id[11:8], 1'b0};
-        IMM_UJTYPE: deif.jumpimm_id = {{28{fdif.instr_id[31]}}, fdif.instr_id[19:12],
+        IMM_UJTYPE: deif.jumpimm_id = {{12{fdif.instr_id[31]}}, fdif.instr_id[19:12],
                                         fdif.instr_id[20], fdif.instr_id[30:21], 1'b0};
-        IMM_IJTYPE: deif.jumpimm_id = {{36{fdif.instr_id[31]}}, fdif.instr_id[31:20]};
+        IMM_IJTYPE: deif.jumpimm_id = {{20{fdif.instr_id[31]}}, fdif.instr_id[31:20]};
         IMM_SHIFT:  deif.imm_id     = {26'b0, fdif.instr_id[25:20]};
         IMM_SHIFTW: deif.imm_id     = {27'b0, fdif.instr_id[24:20]};
       endcase
@@ -207,15 +207,17 @@ module datapath (
     end
 
     always_comb begin: JUMP_ADDR
-      emif.jumpaddr_mem = deif.pc_exe + deif.jumpimm_exe;
+      automatic addr_t jumpimm_sext = {{16{deif.jumpimm_exe[31]}}, deif.jumpimm_exe};
+
+      emif.jumpaddr_mem = deif.pc_exe + jumpimm_sext;
 
       if (deif.jalr_exe) begin
-        emif.jumpaddr_mem = (deif.rdata1_exe + deif.jumpimm_exe) & ~48'h1
+        emif.jumpaddr_mem = (deif.rdata1_exe[ADDR_W-1:0] + jumpimm_sext) & ~48'h1;
         if (fuif.forward_jalr == 2'b01) begin
-          emif.jumpaddr_mem = (emif.alu_out_mem + deif.jumpimm_exe) & ~48'h1;
+          emif.jumpaddr_mem = (emif.alu_out_mem[ADDR_W-1:0] + jumpimm_sext) & ~48'h1;
         end
         else if (fuif.forward_jalr == 2'b10) begin
-          emif.jumpaddr_mem = (rfif.wdata + deif.jumpimm_exe) & ~48'h1;
+          emif.jumpaddr_mem = (rfif.wdata[ADDR_W-1:0] + jumpimm_sext) & ~48'h1;
         end
       end
     end

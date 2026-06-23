@@ -1,7 +1,7 @@
-`ifndef RAM_IF_VH
-`define RAM_IF_VH
+`ifndef RAM_IF_SVH
+`define RAM_IF_SVH
 
-`include "types_pkg.vh"
+`include "types_pkg.svh"
 
 interface ram_if;
     import types_pkg::*;

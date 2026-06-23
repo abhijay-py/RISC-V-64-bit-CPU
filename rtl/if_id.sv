@@ -1,5 +1,5 @@
-`include "if_id_if.vh"
-`include "types_pkg.vh"
+`include "if_id_if.svh"
+`include "types_pkg.svh"
 
 module if_id (
     input logic clk, rst_n,

@@ -1,7 +1,7 @@
-`ifndef IF_ID_IF_VH
-`define IF_ID_IF_VH
+`ifndef IF_ID_IF_SVH
+`define IF_ID_IF_SVH
 
-`include "types_pkg.vh"
+`include "types_pkg.svh"
 
 interface if_id_if;
     import types_pkg::*;

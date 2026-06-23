@@ -1,8 +1,8 @@
-`include "branch_predictor_if.vh"
-`include "types_pkg.vh"
+`include "branch_predictor_if.svh"
+`include "types_pkg.svh"
 
 `ifdef BP_GSHARE
-`include "uvm/uvm_clk_rst_if.vh"
+`include "uvm/uvm_clk_rst_if.svh"
 `include "uvm/branch_predictor_uvm/branch_predictor_pkg.sv"
 `endif
 

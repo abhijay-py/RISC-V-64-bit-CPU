@@ -1,5 +1,5 @@
-`include "hazard_unit_if.vh"
-`include "types_pkg.vh"
+`include "hazard_unit_if.svh"
+`include "types_pkg.svh"
 
 module hazard_unit (
     hazard_unit_if.hu huif

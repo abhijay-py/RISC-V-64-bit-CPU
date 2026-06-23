@@ -1,5 +1,5 @@
-`include "types_pkg.vh"
-`include "ram_if.vh"
+`include "types_pkg.svh"
+`include "ram_if.svh"
 
 module ram
 #(

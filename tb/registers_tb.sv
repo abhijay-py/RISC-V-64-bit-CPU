@@ -1,4 +1,4 @@
-`include "registers_if.vh"
+`include "registers_if.svh"
 
 parameter PERIOD = 10;
 

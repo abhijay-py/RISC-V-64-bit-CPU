@@ -1,5 +1,5 @@
-`include "exe_mem_if.vh"
-`include "types_pkg.vh"
+`include "exe_mem_if.svh"
+`include "types_pkg.svh"
 
 module exe_mem (
     input logic clk, rst_n,

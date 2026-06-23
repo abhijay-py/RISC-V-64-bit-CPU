@@ -1,7 +1,7 @@
-`ifndef BRANCH_PREDICTOR_IF_VH
-`define BRANCH_PREDICTOR_IF_VH
+`ifndef BRANCH_PREDICTOR_IF_SVH
+`define BRANCH_PREDICTOR_IF_SVH
 
-`include "types_pkg.vh"
+`include "types_pkg.svh"
 
 interface branch_predictor_if;
     import types_pkg::*;

@@ -1,5 +1,5 @@
-`include "forwarding_unit_if.vh"
-`include "types_pkg.vh"
+`include "forwarding_unit_if.svh"
+`include "types_pkg.svh"
 
 module forwarding_unit (
     forwarding_unit_if.fu fuif

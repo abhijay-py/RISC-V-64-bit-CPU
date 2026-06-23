@@ -1,7 +1,6 @@
-`include "control_unit_if.vh"
-`include "types_pkg.vh"
+`include "control_unit_if.svh"
+`include "types_pkg.svh"
 
-//TODO: update diagram with funct12
 module control_unit (
     control_unit_if.cu cuif
 );

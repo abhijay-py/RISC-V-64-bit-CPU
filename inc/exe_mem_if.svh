@@ -1,7 +1,7 @@
-`ifndef EXE_MEM_IF_VH
-`define EXE_MEM_IF_VH
+`ifndef EXE_MEM_IF_SVH
+`define EXE_MEM_IF_SVH
 
-`include "types_pkg.vh"
+`include "types_pkg.svh"
 
 interface exe_mem_if;
     import types_pkg::*;

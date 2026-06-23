@@ -65,7 +65,7 @@ No reconfigure step is needed — just pass `BP_TYPE=...` on each invocation.
 **Example testbench header with deps:**
 ```systemverilog
 // DEPS: alu registers
-`include "datapath_if.vh"
+`include "datapath_if.svh"
 ...
 ```
 

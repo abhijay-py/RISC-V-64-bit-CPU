@@ -1,7 +1,7 @@
-`ifndef ALU_IF_VH
-`define ALU_IF_VH
+`ifndef ALU_IF_SVH
+`define ALU_IF_SVH
 
-`include "types_pkg.vh"
+`include "types_pkg.svh"
 
 interface alu_if;
     import types_pkg::*;

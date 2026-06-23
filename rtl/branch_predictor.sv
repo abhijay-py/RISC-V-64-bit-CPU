@@ -1,8 +1,7 @@
 
-`include "branch_predictor_if.vh"
-`include "types_pkg.vh"
+`include "branch_predictor_if.svh"
+`include "types_pkg.svh"
 
-//TODO: Update diagram + iron out timing decisions
 module branch_predictor (
     input logic clk, rst_n,
     branch_predictor_if.bp bpif

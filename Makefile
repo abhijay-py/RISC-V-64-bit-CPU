@@ -96,7 +96,7 @@ endif
 
 # ---------------------------------------------------------------------------
 # Parse "// DEPS: dep1 dep2 ..." from the first 10 lines of a TB file.
-# rtl/<module>.sv and all .vh files are always included automatically.
+# rtl/<module>.sv and all .svh files are always included automatically.
 # ---------------------------------------------------------------------------
 GET_DEPS     = $(shell ./scripts/get_deps.sh $(1) $(SRC_DIR))
 GET_DEPS_ABS = $(shell ./scripts/get_deps.sh $(1) $(CURDIR)/$(SRC_DIR))
@@ -204,7 +204,7 @@ help:
 	@echo "Deps:"
 	@echo "  Add '// DEPS: mod1 mod2' on the first line of tb/<module>_tb.sv"
 	@echo "  to pull in extra rtl/*.sv files the DUT instantiates."
-	@echo "  rtl/<module>.sv and all .vh files are always included automatically."
+	@echo "  rtl/<module>.sv and all .svh files are always included automatically."
 	@echo ""
 	@echo "Output (all under build/):"
 	@echo "  sim.log / coverage.log        simulation and coverage logs"

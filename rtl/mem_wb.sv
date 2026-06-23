@@ -1,5 +1,5 @@
-`include "mem_wb_if.vh"
-`include "types_pkg.vh"
+`include "mem_wb_if.svh"
+`include "types_pkg.svh"
 
 module mem_wb (
     input logic clk, rst_n,

@@ -1,5 +1,5 @@
-`include "id_exe_if.vh"
-`include "types_pkg.vh"
+`include "id_exe_if.svh"
+`include "types_pkg.svh"
 
 module id_exe (
     input logic clk, rst_n,

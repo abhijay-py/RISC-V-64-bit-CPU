@@ -1,7 +1,7 @@
-`ifndef HAZARD_UNIT_IF_VH
-`define HAZARD_UNIT_IF_VH
+`ifndef HAZARD_UNIT_IF_SVH
+`define HAZARD_UNIT_IF_SVH
 
-`include "types_pkg.vh"
+`include "types_pkg.svh"
 
 interface hazard_unit_if;
     import types_pkg::*;

@@ -1,7 +1,7 @@
-`ifndef REGISTERS_IF_VH
-`define REGISTERS_IF_VH
+`ifndef REGISTERS_IF_SVH
+`define REGISTERS_IF_SVH
 
-`include "types_pkg.vh"
+`include "types_pkg.svh"
 
 interface registers_if;
     import types_pkg::*;

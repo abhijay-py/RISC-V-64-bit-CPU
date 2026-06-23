@@ -1,7 +1,7 @@
-`ifndef MEM_WB_IF_VH
-`define MEM_WB_IF_VH
+`ifndef MEM_WB_IF_SVH
+`define MEM_WB_IF_SVH
 
-`include "types_pkg.vh"
+`include "types_pkg.svh"
 
 interface mem_wb_if;
     import types_pkg::*;

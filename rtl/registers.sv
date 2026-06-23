@@ -1,5 +1,5 @@
-`include "registers_if.vh"
-`include "types_pkg.vh"
+`include "registers_if.svh"
+`include "types_pkg.svh"
 
 module registers (
     input logic clk, rst_n,

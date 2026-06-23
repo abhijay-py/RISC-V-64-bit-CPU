@@ -1,4 +1,4 @@
-`include "alu_if.vh"
+`include "alu_if.svh"
 
 module alu_tb;
     import types_pkg::*;

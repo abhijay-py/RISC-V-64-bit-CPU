@@ -1,5 +1,5 @@
-`ifndef TYPES_PKG_VH
-`define TYPES_PKG_VH
+`ifndef TYPES_PKG_SVH
+`define TYPES_PKG_SVH
 
 package types_pkg;
 
@@ -48,7 +48,7 @@ package types_pkg;
     parameter PHT_ENTRIES = 1 << GHR_W;
     parameter PHT_W       = 2;
 
-    parameter BTB_IDX_W         = 9; //1024 entry 2-way BTB
+    parameter BTB_IDX_W         = 7; //256 entry 2-way BTB
     parameter BTB_TAG_W         = ADDR_W - BTB_IDX_W;
     parameter BTB_FRAME_ENTRIES = 1 << BTB_IDX_W;
 
